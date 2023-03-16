@@ -94,7 +94,7 @@ x_test_tensor = torch.from_numpy(x_test_2d)
 y_train_tensor = torch.from_numpy(y_train)
 y_test_tensor = torch.from_numpy(y_test)
 
-if torch.cuda.is_available:
+if torch.cuda.is_available():
     x_train_tensor = x_train_tensor.cuda()
     x_test_tensor = x_test_tensor.cuda()
     y_train_tensor = y_train_tensor.cuda()
@@ -178,7 +178,7 @@ def metrics(predict,expected):
 #    print("MSE",mse.detach().numpy())
 #    print("RMSE",rmse.detach().numpy())
 #    print("R2",r2.detach().numpy())
-   if torch.cuda.is_available:
+   if torch.cuda.is_available():
       mae = mae.cpu()
       mse = mse.cpu()
       rmse = rmse.cpu()
