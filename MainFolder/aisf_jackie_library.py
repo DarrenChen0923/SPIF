@@ -42,8 +42,8 @@ def generate_gridcordinate(d, x_max, x_min, y_max, y_min):
     """ 
     # mm in this case
     #use gin to generate grid
-    x_axis = np.arange(x_min,x_max-d,5)#sheng cheng deng cha shu lie 
-    y_axis = np.arange(y_min,y_max-d,5)
+    x_axis = np.arange(x_min,x_max-d,3)#sheng cheng deng cha shu lie 
+    y_axis = np.arange(y_min,y_max-d,3)
     X,Y = np.meshgrid(x_axis,y_axis)
 
     # 左下xy，右下xy，左上xy，右上点xy, 中点xy
