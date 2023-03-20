@@ -117,7 +117,7 @@ mom = 0.01
 
 #complie
 callback_file = None
-epo = 5000
+epo = 10000
 
 
 class GRUModel(nn.Module):
