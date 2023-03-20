@@ -56,7 +56,7 @@ dataset_x = []
 dataset_y = []
 import random
 # /home/durrr/phd/SPIF_DU/MainFolder/50mm_file/outfile3/trainingfile_50mm_overlapping_5.txt
-with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping_3.txt'.format(size = gsize, fnum = filenum), 'r') as f:
+with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping_3s.txt'.format(size = gsize, fnum = filenum), 'r') as f:
     lines = f.readlines()
     if shuffle:
       random.Random(seed).shuffle(lines)
@@ -225,6 +225,12 @@ mean_y_true = torch.mean(y_test_tensor)
 ss_tot = torch.sum(torch.pow(y_test_tensor-mean_y_true,2))
 ss_res = torch.sum(torch.pow(y_test_tensor-pre,2))
 r2=1-ss_res/ss_tot
+
+if torch.cuda.is_available():
+    mae = mae.cpu()
+    mse = mse.cpu()
+    rmse = rmse.cpu()
+    r2 = r2.cpu()
 print("MAE",mae.detach().numpy())
 print("MSE",mse.detach().numpy())
 print("RMSE",rmse.detach().numpy())
