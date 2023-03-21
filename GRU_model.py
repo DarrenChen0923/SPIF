@@ -173,7 +173,7 @@ def metrics(predict,expected):
     if torch.cuda.is_available():
         predict = predict.cpu()
     predict = predict.detach().numpy()
-    expected = expected.detach().numpy()
+    expected = expected.cpu()
 
     mae = mean_absolute_error(predict,expected)
     mse = mean_squared_error(predict,expected)
@@ -184,11 +184,6 @@ def metrics(predict,expected):
 #    print("MSE",mse.detach().numpy())
 #    print("RMSE",rmse.detach().numpy())
 #    print("R2",r2.detach().numpy())
-    if torch.cuda.is_available():
-      mae = mae.cpu()
-      mse = mse.cpu()
-      rmse = rmse.cpu()
-      r2 = r2.cpu()
 
     maes.append(mae)
     mses.append(mse)
@@ -226,7 +221,7 @@ pre,_ = model(x_test_tensor,None)
 if torch.cuda.is_available():
     pre = pre.cpu()
 pre = pre.detach().numpy()
-y_test_tensor = y_test_tensor.detach().numpy()
+y_test_tensor = y_test_tensor.cpu()
 
 mae = mean_absolute_error(pre,y_test_tensor)
 mse = mean_squared_error(pre,y_test_tensor)
