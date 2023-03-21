@@ -170,27 +170,25 @@ def checkCpu(value):
 
 #metrics
 def metrics(predict,expected):
-   mae = F.l1_loss(predict,expected)
-   mse = F.mse_loss(predict,expected)
-   rmse = torch.sqrt(mse)
-   mean_y_true = torch.mean(expected)
-   ss_tot = torch.sum(torch.pow(expected-mean_y_true,2))
-   ss_res = torch.sum(torch.pow(expected-predict,2))
-   r2=1-ss_res/ss_tot
+    mae = mean_absolute_error(predict,expected)
+    mse = mean_squared_error(predict,expected)
+    rmse = mean_squared_error(predict,expected,squared=False)
+    r2=r2_score(predict,expected)
+    
 #    print("MAE",mae.detach().numpy())
 #    print("MSE",mse.detach().numpy())
 #    print("RMSE",rmse.detach().numpy())
 #    print("R2",r2.detach().numpy())
-   if torch.cuda.is_available():
+    if torch.cuda.is_available():
       mae = mae.cpu()
       mse = mse.cpu()
       rmse = rmse.cpu()
       r2 = r2.cpu()
 
-   maes.append(mae.detach().numpy())
-   mses.append(mse.detach().numpy())
-   rmses.append(rmse.detach().numpy())
-   r2s.append(r2.detach().numpy())
+    maes.append(mae.detach().numpy())
+    mses.append(mse.detach().numpy())
+    rmses.append(rmse.detach().numpy())
+    r2s.append(r2.detach().numpy())
    
 
 for e in range(epo):
