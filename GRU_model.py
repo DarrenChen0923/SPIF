@@ -149,7 +149,7 @@ model = GRUModel(x_train_tensor.shape[1],gru_units,num_layer).to(device=device)
 print(model)
 
 
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 
 optimize = optim.SGD(model.parameters(),lr =lr,momentum=mom)
 time0 = time()
