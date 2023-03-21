@@ -7,6 +7,9 @@ import matplotlib as plt
 from time  import time
 import torch.nn.functional as F
 import matplotlib.pyplot  as plt
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import r2_score
 
 
 
@@ -49,7 +52,7 @@ seed = 2
 
 # set which file to use to build model and what is the grid size
 filenum = 3
-gsize = 50 #5,10,15,20,30,40,50
+gsize = 40 #5,10,15,20,30,40,50
 shuffle = True
 
 dataset_x = []
@@ -217,14 +220,10 @@ print("\nTraining Time(in minutes) = ",(time()-time0)/60)
 model.eval()
 pre,_ = model(x_test_tensor,None)
 # metrics(pre, y_test_tensor)
-mae = F.l1_loss(pre,y_test_tensor)
-mse = F.mse_loss(pre,y_test_tensor)
-rmse = torch.sqrt(mse)
-mean_y_true = torch.mean(y_test_tensor)
-   
-ss_tot = torch.sum(torch.pow(y_test_tensor-mean_y_true,2))
-ss_res = torch.sum(torch.pow(y_test_tensor-pre,2))
-r2=1-ss_res/ss_tot
+mae = mean_absolute_error(pre,y_test_tensor)
+mse = mean_squared_error(pre,y_test_tensor)
+rmse = mean_squared_error(pre,y_test_tensor,squared=False)
+r2=r2_score(pre,y_test_tensor)
 
 if torch.cuda.is_available():
     mae = mae.cpu()
@@ -249,5 +248,5 @@ plt.xlabel("Epo")
 plt.ylabel("Metrics Value")
 plt.legend()
 plt.show()
-plt.savefig("/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/GRU_Metrics_outfile{filenum}_gridized{size}mm")
+plt.savefig("GRU_Metrics_outfile{filenum}_gridized{size}mm")
 
