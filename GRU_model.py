@@ -1,5 +1,4 @@
 import numpy as np
-import math
 import torch
 import torch.nn as nn
 from torch import optim
@@ -91,19 +90,19 @@ nsamplet,nxt,nyt = x_test.shape
 x_test_2d = x_test.reshape(nsamplet, nxt*nyt)
 
 
-   
+#tensor to numpy
 x_train_tensor = torch.from_numpy(x_train_2d)
 x_test_tensor = torch.from_numpy(x_test_2d)
 y_train_tensor = torch.from_numpy(y_train)
 y_test_tensor = torch.from_numpy(y_test)
 
+#gpu environment: transfer int cuda
 if torch.cuda.is_available():
     x_train_tensor = x_train_tensor.cuda()
     x_test_tensor = x_test_tensor.cuda()
     y_train_tensor = y_train_tensor.cuda()
     y_test_tensor = y_test_tensor.cuda()
 
-# print(x_train)
 
 # set paramemaers
 gru_units = 128
@@ -124,9 +123,8 @@ epo = 10000
 
 
 class GRUModel(nn.Module):
-    def __init__(self,input_size,hidden_size, output_size):
+    def __init__(self,input_size,hidden_size):
         super(GRUModel,self).__init__()
-        self.hidden_size = hidden_size
         self.gru = nn.GRU(input_size,hidden_size)
         self.fc = nn.Linear(hidden_size,256)
         self.fc1 = nn.Linear(256,64)
@@ -145,7 +143,7 @@ class GRUModel(nn.Module):
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = GRUModel(x_train_tensor.shape[1],gru_units,num_layer).to(device=device)
+model = GRUModel(x_train_tensor.shape[1],gru_units).to(device=device)
 print(model)
 
 
@@ -162,12 +160,6 @@ mses = []
 rmses = []
 r2s = []
 
-def checkCpu(value):
-   if torch.cuda.is_available():
-      return value.cpu()
-   else:
-      return value
-
 #metrics
 def metrics(predict,expected):
     if torch.cuda.is_available():
@@ -179,11 +171,6 @@ def metrics(predict,expected):
     mse = mean_squared_error(expected,predict)
     rmse = mean_squared_error(expected,predict,squared=False)
     r2=r2_score(expected,predict)
-
-#    print("MAE",mae.detach().numpy())
-#    print("MSE",mse.detach().numpy())
-#    print("RMSE",rmse.detach().numpy())
-#    print("R2",r2.detach().numpy())
 
     maes.append(mae)
     mses.append(mse)
@@ -197,7 +184,6 @@ for e in range(epo):
   
    metrics(hx,y_train_tensor)
    loss= criterion(hx,y_train_tensor)
-  #  mses.append(loss.item())
    loss.backward()
 
    optimize.step()
@@ -205,19 +191,9 @@ for e in range(epo):
 
 print("\nTraining Time(in minutes) = ",(time()-time0)/60)
 
-# #evaluation model
-# test_loss = criterion(hx.squeeze(0),y_train_tensor)
-# print(f"Test Loss:{test_loss.item()}")
-
-# print("Best Result")
-# print("MAE",np.min(maes))
-# print("MSE",np.min(mses))
-# print("RMSE",np.min(rmses))
-# print("R2",np.max(r2s))
 
 model.eval()
 pre,_ = model(x_test_tensor,None)
-# metrics(pre, y_test_tensor)
 if torch.cuda.is_available():
     pre = pre.cpu()
 pre = pre.detach().numpy()
