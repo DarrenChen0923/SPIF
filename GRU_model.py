@@ -9,7 +9,7 @@ import matplotlib.pyplot  as plt
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
-
+import torch.utils.data as Data
 
 
 def create_dataset(X, y):
@@ -51,7 +51,7 @@ seed = 2
 
 # set which file to use to build model and what is the grid size
 filenum = 3
-gsize = 40 #5,10,15,20,30,40,50
+gsize = 50 #5,10,15,20,30,40,50
 shuffle = True
 
 dataset_x = []
@@ -104,6 +104,10 @@ if torch.cuda.is_available():
     y_test_tensor = y_test_tensor.cuda()
 
 
+#Combine data
+train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
+test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
+
 # set paramemaers
 gru_units = 128
 num_layer = 1
@@ -119,13 +123,15 @@ mom = 0.01
 
 #complie
 callback_file = None
-epo = 10000
+epo = 1000
 
+#Create dataloader
+loader = Data.DataLoader(dataset=train_dataset,batch_size=batch,shuffle=shuffle)
 
 class GRUModel(nn.Module):
-    def __init__(self,input_size,hidden_size):
+    def __init__(self,input_size,hidden_size,gru_units):
         super(GRUModel,self).__init__()
-        self.gru = nn.GRU(input_size,hidden_size)
+        self.gru = nn.GRU(input_size,hidden_size,gru_units)
         self.fc = nn.Linear(hidden_size,256)
         self.fc1 = nn.Linear(256,64)
         self.fc2 = nn.Linear(64,1)
@@ -143,7 +149,7 @@ class GRUModel(nn.Module):
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = GRUModel(x_train_tensor.shape[1],gru_units).to(device=device)
+model = GRUModel(x_train_tensor.shape[1],gru_units,gru_units).to(device=device)
 print(model)
 
 
@@ -179,15 +185,16 @@ def metrics(predict,expected):
    
 
 for e in range(epo):
-   optimize.zero_grad()
-   hx,cx = model(x_train_tensor,None)
-  
-   metrics(hx,y_train_tensor)
-   loss= criterion(hx,y_train_tensor)
-   loss.backward()
+   for step, (batch_x,batch_y) in enumerate(loader):
+    optimize.zero_grad()
+    hx,cx = model(batch_x,None)
+    
+    metrics(hx,batch_y)
+    loss= criterion(hx,batch_y)
+    loss.backward()
 
-   optimize.step()
-   print(f"Epoch {e+1}, Loss:{loss.item()}")
+    optimize.step()
+    print(f"Epoch: {e+1}, Step: {step+1}, Loss:{loss.item()}")
 
 print("\nTraining Time(in minutes) = ",(time()-time0)/60)
 
@@ -208,8 +215,6 @@ print("MAE",mae)
 print("MSE",mse)
 print("RMSE",rmse)
 print("R2",r2)
-
-
 
 
 epos = np.arange(epo)+1
