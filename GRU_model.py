@@ -129,9 +129,9 @@ epo = 1000
 loader = Data.DataLoader(dataset=train_dataset,batch_size=batch,shuffle=shuffle)
 
 class GRUModel(nn.Module):
-    def __init__(self,input_size,hidden_size,gru_units):
+    def __init__(self,input_size,hidden_size):
         super(GRUModel,self).__init__()
-        self.gru = nn.GRU(input_size,hidden_size,gru_units)
+        self.gru = nn.GRU(input_size,hidden_size,batch_first = True)
         self.fc = nn.Linear(hidden_size,256)
         self.fc1 = nn.Linear(256,64)
         self.fc2 = nn.Linear(64,1)
@@ -149,13 +149,13 @@ class GRUModel(nn.Module):
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = GRUModel(x_train_tensor.shape[1],gru_units,gru_units).to(device=device)
+model = GRUModel(x_train_tensor.shape[1],gru_units).to(device=device)
 print(model)
 
 
 criterion = nn.L1Loss()
 
-optimize = optim.SGD(model.parameters(),lr =lr,momentum=mom)
+optimize = optim.SGD(model.parameters(),lr =lr,momentum=mom,nesterov=False)
 time0 = time()
 
 hx  = x_train_tensor
@@ -183,9 +183,11 @@ def metrics(predict,expected):
     rmses.append(rmse)
     r2s.append(r2)
    
-
+total_losss=[]
 for e in range(epo):
+   total_loss = 0
    for step, (batch_x,batch_y) in enumerate(loader):
+    print(batch_x.shape)
     optimize.zero_grad()
     hx,cx = model(batch_x,None)
     
@@ -194,7 +196,10 @@ for e in range(epo):
     loss.backward()
 
     optimize.step()
-    print(f"Epoch: {e+1}, Step: {step+1}, Loss:{loss.item()}")
+    total_loss = total_loss + loss.item()
+    if step == len(loader) -1:
+       total_losss.append(total_loss)
+    print(f"Epoch: {e+1}, Step: {step}, Loss:{loss.item()}")
 
 print("\nTraining Time(in minutes) = ",(time()-time0)/60)
 
@@ -218,11 +223,12 @@ print("R2",r2)
 
 
 epos = np.arange(epo)+1
-mae_plt = plt.plot(epos,maes,label='MAE')
-mse_plt = plt.plot(epos,mses,label = 'MSE')
-rmse_plt = plt.plot(epos,rmses,label = 'RMSE')
-r2_plt = plt.plot(epos,r2s,label='R2')
-plt.title("Metrics_outfile{filenum}/gridized{size}mm")
+# mae_plt = plt.plot(epos,maes,label='MAE')
+# mse_plt = plt.plot(epos,mses,label = 'MSE')
+# rmse_plt = plt.plot(epos,rmses,label = 'RMSE')
+# r2_plt = plt.plot(epos,r2s,label='R2')
+loss_plt = plt.plot(epos,total_losss,label = "Total_loss")
+plt.title('Metrics_outfile{fnum}/gridized{size}mm'.format(size = gsize, fnum = filenum))
 plt.xlabel("Epo")
 plt.ylabel("Metrics Value")
 plt.legend()
