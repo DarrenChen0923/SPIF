@@ -187,7 +187,6 @@ total_losss=[]
 for e in range(epo):
    total_loss = 0
    for step, (batch_x,batch_y) in enumerate(loader):
-    print(batch_x.shape)
     optimize.zero_grad()
     hx,cx = model(batch_x,None)
     
