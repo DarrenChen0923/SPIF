@@ -58,7 +58,7 @@ dataset_x = []
 dataset_y = []
 import random
 # /home/durrr/phd/SPIF_DU/MainFolder/50mm_file/outfile3/trainingfile_50mm_overlapping_5.txt
-with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping_3.txt'.format(size = gsize, fnum = filenum), 'r') as f:
+with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping.txt'.format(size = gsize, fnum = filenum), 'r') as f:
     lines = f.readlines()
     if shuffle:
       random.Random(seed).shuffle(lines)
