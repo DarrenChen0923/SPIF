@@ -91,16 +91,22 @@ x_train_2d = x_train.reshape(nsample, nx*ny)
 nsamplet,nxt,nyt = x_test.shape
 x_test_2d = x_test.reshape(nsamplet, nxt*nyt)
 
+#tensor to numpy
 x_train_tensor = torch.from_numpy(x_train_2d)
 x_test_tensor = torch.from_numpy(x_test_2d)
 y_train_tensor = torch.from_numpy(y_train)
 y_test_tensor = torch.from_numpy(y_test)
 
+#gpu environment: transfer into cuda
 if torch.cuda.is_available:
     x_train_tensor = x_train_tensor.cuda()
     x_test_tensor = x_test_tensor.cuda()
     y_train_tensor = y_train_tensor.cuda()
     y_test_tensor = y_test_tensor.cuda()
+
+#Combine data
+train_dataset = Data.TensorDataset(x_train_tensor, y_train_tensor)
+test_dataset = Data.TensorDataset(x_test_tensor, y_test_tensor)
 
 
 # print(x_train)
@@ -124,30 +130,34 @@ mom = 0.01
 callback_file = None
 epo = 5000
 
+
+#Create dataloader
+loader = Data.DataLoader(dataset = train_dataset, batch_size = batch, shuffle = shuffle)
+
 class LSTMwithAttention(nn.Module):
-   def __init__(self,input_size,hidden_size,num_layers):
+   def __init__(self,input_size,hidden_size):
       super(LSTMwithAttention,self).__init__()
-      self.hidden_size = hidden_size
-      self.num_layers = num_layers
-      self.lstm = nn.LSTM(input_size,hidden_size,num_layers,batch_first = True) #  data length ->128
-      self.fc1 = nn.Linear(lstm_units,256) #128 -> 256
+      self.lstm = nn.GRU(input_size,hidden_size,batch_first = True) #  data length ->128
+      self.fc1 = nn.Linear(hidden_units,256) #128 -> 256
       self.fc2 = nn.Linear(256,64) #256->64
       self.fc3 = nn.Linear(64,1) #64->1
 
-   def forward(self,hx,pre):
-      hx,cx = self.lstm(hx,pre) 
-      hx = torch.relu(hx)
-      hx = self.fc1(hx)
-      hx = torch.relu(self.fc2(hx))
-      hx = self.fc3(hx)
-      return hx,cx
+   def forward(self,input,hidden):
+      output, hidden = self.gru(input,hidden) 
+      output = torch.relu(output)
+      output = self.fc(output)
+      output = torch.relu(output)
+      output = self.fc1(output)
+      output = torch.relu(output)
+      output = self.fc2(output)
+      return output,hidden
    
       
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = LSTMwithAttention(x_train_tensor.shape[1],lstm_units,num_layer).to(device=device)
+model = LSTMwithAttention(x_train_tensor.shape[1],lstm_units).to(device=device)
 print(model)
 
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 
 optimize = optim.SGD(model.parameters(),lr =lr,momentum=mom)
 time0 = time()
