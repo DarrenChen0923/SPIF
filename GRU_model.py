@@ -11,7 +11,6 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 import torch.utils.data as Data
 
-
 def create_dataset(X, y):
     features = []
     targets = []
@@ -52,13 +51,16 @@ seed = 2
 # set which file to use to build model and what is the grid size
 filenum = 3
 gsize = 50 #5,10,15,20,30,40,50
+overlapping_step = 3 # 1,3,5
 shuffle = True
 
 dataset_x = []
 dataset_y = []
 import random
+# MBP14 ： /Users/darren/资料/SPIF_DU/MainFolder/5mm_file/outfile3
 # /home/durrr/phd/SPIF_DU/MainFolder/50mm_file/outfile3/trainingfile_50mm_overlapping_5.txt
-with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping.txt'.format(size = gsize, fnum = filenum), 'r') as f:
+with open('/Users/darren/资料/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping_{overlapping_step}.txt'.format(size = gsize, fnum = filenum,overlapping_step = overlapping_step), 'r') as f:
+# with open('/home/durrr/phd/SPIF_DU/MainFolder/{size}mm_file/outfile{fnum}/trainingfile_{size}mm_overlapping{overlapping_step}.txt'.format(size = gsize, fnum = filenum,overlapping_step = overlapping_step), 'r') as f:
     lines = f.readlines()
     if shuffle:
       random.Random(seed).shuffle(lines)
