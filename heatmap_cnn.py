@@ -7,6 +7,9 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import r2_score
 
 def read_data(f_num,d):
 
@@ -56,8 +59,11 @@ y = y1 + y2 + y3
 X = np.array(X)
 y = np.array(y)
 
-print(X.shape)
-print(y.shape)
+# length = 1452
+# X=(1452, 3, 15, 15) y=(1452,)
+# print(X.shape)
+# print(y.shape)
+
 # 归一化图像数据（根据需要）
 X = X / 255.0  # 假设使用0-255的像素值
 # 划分数据集为训练集和验证集
@@ -87,7 +93,7 @@ train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
 test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
 
 #Create dataset loader
-batch = 32
+batch = 8
 train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False)
 
@@ -98,27 +104,63 @@ class HeatMapCNN(nn.Module):
         self.conv1 = nn.Conv2d(3,16,3)
         self.conv2 = nn.Conv2d(16,4,3)
         self.fc1 = nn.Linear(4 * 11 * 11, 128)
-        self.fc2 = nn.Linear(128, 32)
-        self.fc3 = nn.Linear(32, 1)
+        self.fc2 = nn.Linear(128, 64)
+        # self.fc3 = nn.Linear(32, 1)
 
     def forward(self,x):
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
         x = x.view(x.shape[0],-1)
         x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
+        # x = torch.relu(self.fc2(x))
+        x = self.fc2(x)
+        return x
+
+class HeatMapGRU(nn.Module):
+    def __init__(self, input_size, hidden_size, num_layers):
+        super(HeatMapGRU, self).__init__()
+        self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size,256)
+        self.fc1 = nn.Linear(256,64)
+        self.fc2 = nn.Linear(64,32)
+
+    def forward(self,x):
+        output, _ = self.gru(x)
+        output =torch.relu(output)
+        output = self.fc(output)
+        output =torch.relu(output)
+        output = self.fc1(output)
+        output =torch.relu(output)
+        output = self.fc2(output)
+        return output
+
+class CNN_GRU_Model(nn.Module):
+    def __init__(self, cnn, gru, hidden_size, output_size):
+        super(CNN_GRU_Model, self).__init__()
+        self.cnn = cnn
+        self.gru = gru
+        self.fc = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+        x = self.cnn(x)
+        x = x.unsqueeze(1)
+        x = self.gru(x)
+        x = self.fc(x)
         return x
 
 # 创建模型实例
-model = HeatMapCNN()
+cnn = HeatMapCNN()
+gru = HeatMapGRU(input_size=64, hidden_size=32, num_layers=2)
+model = CNN_GRU_Model(cnn, gru, hidden_size=32, output_size=1)
+print(model)
+# model = HeatMapCNN()
 
 # 定义损失函数和优化器
-criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.002)
-# 记录训练和测试过程中的性能指标
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.005)
+# 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
-test_accuracies = []  # 测试准确度
+test_losses = []  # 测试损失
 
 # 训练模型
 num_epochs = 1000
@@ -134,25 +176,25 @@ for epoch in range(num_epochs):
 
 # 训练完成后，你可以使用模型进行预测等任务
 model.eval()
+mse = 0.0
+mae = 0.0
+y_true = []
+y_pred = []
 with torch.no_grad():
-    correct = 0
-    total = 0
     for images, labels in test_data_loader:
         outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
+        outputs = outputs.squeeze()
+        y_true.extend(labels.tolist())
+        y_pred.extend(outputs.tolist())
+        loss = criterion(outputs, labels)
+        mse += mean_squared_error(labels, outputs)
+        mae += mean_absolute_error(labels, outputs)
 
-    accuracy = correct / total
-    print(f'Test Accuracy: {100 * accuracy:.2f}%')
-
-# 绘制训练和测试的对比折线图
-plt.figure(figsize=(10, 5))
-plt.plot(range(num_epochs), train_losses, label='Train Loss', color='blue')
-# plt.plot(range(num_epochs), test_accuracies, label='Test Accuracy', color='red')
-plt.xlabel('Epochs')
-plt.ylabel('Performance')
-plt.legend()
-plt.title('Training vs. Testing Performance')
-plt.grid(True)
-plt.show()
+mse /= len(test_data_loader)
+mae /= len(test_data_loader)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_true, y_pred)
+print(f'Test MSE: {mse:.4f}')
+print(f'Test MAE: {mae:.4f}')
+print(f'Test RMSE: {rmse:.4f}')
+print(f'Test R^2: {r2:.4f}')
