@@ -124,18 +124,9 @@ class HeatMapGRU(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers):
         super(HeatMapGRU, self).__init__()
         self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size,256)
-        self.fc1 = nn.Linear(256,64)
-        self.fc2 = nn.Linear(64,32)
 
     def forward(self,x):
         output, _ = self.gru(x)
-        output =torch.relu(output)
-        output = self.fc(output)
-        output =torch.relu(output)
-        output = self.fc1(output)
-        output =torch.relu(output)
-        output = self.fc2(output)
         return output
 
 class CNN_GRU_Model(nn.Module):
