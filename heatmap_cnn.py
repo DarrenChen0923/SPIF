@@ -105,14 +105,16 @@ test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(3,16,3)
-        self.conv2 = nn.Conv2d(16,4,3)
-        self.fc1 = nn.Linear(4 * 11 * 11, 128)
-        self.fc2 = nn.Linear(128, 64)
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3)
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=4,kernel_size=2,padding=1)
+        self.pool = nn.AvgPool2d(2)
+        self.fc1 = nn.Linear(4 * 7 * 7, 64)
+        self.fc2 = nn.Linear(64, 16)
 
     def forward(self,x):
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
+        x = self.pool(x)
         x = x.view(x.shape[0],-1)
         x = torch.relu(self.fc1(x))
         x = self.fc2(x)
@@ -152,7 +154,7 @@ class CNN_GRU_Model(nn.Module):
 
 # 创建模型实例
 cnn = HeatMapCNN()
-gru = HeatMapGRU(input_size=64, hidden_size=32, num_layers=2)
+gru = HeatMapGRU(input_size=16, hidden_size=32, num_layers=2)
 model = CNN_GRU_Model(cnn, gru, hidden_size=32, output_size=1)
 print(model)
 # model = HeatMapCNN()
