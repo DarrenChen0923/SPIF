@@ -7,6 +7,9 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import r2_score
 
 def read_data(f_num,d):
 
@@ -56,10 +59,13 @@ y = y1 + y2 + y3
 X = np.array(X)
 y = np.array(y)
 
-print(X.shape)
-print(y.shape)
-# 归一化图像数据（根据需要）
-X = X / 255.0  # 假设使用0-255的像素值
+# length = 1452
+# X=(1452, 3, 15, 15) y=(1452,)
+# print(X.shape)
+# print(y.shape)
+
+# 归一化图像数据
+# X = X / 255.0  # 假设使用0-255的像素值
 # 划分数据集为训练集和验证集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -95,30 +101,30 @@ test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(3,16,3)
-        self.conv2 = nn.Conv2d(16,4,3)
-        self.fc1 = nn.Linear(4 * 11 * 11, 128)
-        self.fc2 = nn.Linear(128, 32)
-        self.fc3 = nn.Linear(32, 1)
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3,padding=1)# 3*15*15 pading =1 为了利用边缘信息
+        self.conv2 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 3*3*13*13
+        self.pool1 = nn.AvgPool2d(2) # 3*3*6*6
+        self.conv3 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 9*3*4*4
+        self.fc1 = nn.Linear(3 * 4 * 4, 1)
 
     def forward(self,x):
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = torch.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.fc1(x)
         return x
 
 # 创建模型实例
 model = HeatMapCNN()
-
+print(model)
 # 定义损失函数和优化器
 criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.002)
-# 记录训练和测试过程中的性能指标
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+# 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
-test_accuracies = []  # 测试准确度
+test_losses = []  # 测试损失
 
 # 训练模型
 num_epochs = 1000
@@ -129,30 +135,51 @@ for epoch in range(num_epochs):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-    train_losses.append(loss.item())
+    train_losses.append(loss.item() )
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
+
+    model.eval()
+    with torch.no_grad():
+        for images, labels in test_data_loader:
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+
+    test_losses.append(loss.item())
 
 # 训练完成后，你可以使用模型进行预测等任务
 model.eval()
+mse = 0.0
+mae = 0.0
+y_true = []
+y_pred = []
 with torch.no_grad():
-    correct = 0
-    total = 0
     for images, labels in test_data_loader:
         outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
+        firtst_dim = outputs.shape[0] 
+        outputs = outputs.squeeze()
+        #避免批量处理后，只剩单个数据 outputs: tensor(-0.0082) labels: tensor([-0.5068])
+        if firtst_dim == 1:
+            outputs = outputs.unsqueeze(0)
+        y_true.extend(labels.tolist())
+        y_pred.extend(outputs.tolist())
+        loss = criterion(outputs, labels)
+        mse += mean_squared_error(labels, outputs)
+        mae += mean_absolute_error(labels, outputs)
 
-    accuracy = correct / total
-    print(f'Test Accuracy: {100 * accuracy:.2f}%')
+mse /= len(test_data_loader)
+mae /= len(test_data_loader)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_true, y_pred)
+print(f'Test MSE: {mse:.4f}')
+print(f'Test MAE: {mae:.4f}')
+print(f'Test RMSE: {rmse:.4f}')
+print(f'Test R^2: {r2:.4f}')
 
-# 绘制训练和测试的对比折线图
-plt.figure(figsize=(10, 5))
-plt.plot(range(num_epochs), train_losses, label='Train Loss', color='blue')
-# plt.plot(range(num_epochs), test_accuracies, label='Test Accuracy', color='red')
+# 绘制训练和测试损失曲线
+plt.figure()
+plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
+plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
 plt.xlabel('Epochs')
-plt.ylabel('Performance')
+plt.ylabel('Loss')
 plt.legend()
-plt.title('Training vs. Testing Performance')
-plt.grid(True)
 plt.show()
