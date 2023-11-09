@@ -41,9 +41,6 @@ def read_data(f_num,d):
             # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
             img = np.array(img)  # 将图像转化为NumPy数组
         img = img.transpose((2, 0, 1))
-        # 去0
-        if label == "0.0":
-            continue
         # 将图像数据和标签添加到列表
         X.append(img)
         y.append(label)
@@ -64,12 +61,11 @@ y = np.array(y)
 
 # length = 1452
 # X=(1452, 3, 15, 15) y=(1452,)
-# 去0后 X=(1441, 3, 15, 15) y=(1441,)
 # print(X.shape)
 # print(y.shape)
 
 # 归一化图像数据
-X = X / 255.0  # 假设使用0-255的像素值
+# X = X / 255.0  # 假设使用0-255的像素值
 # 划分数据集为训练集和验证集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -105,53 +101,26 @@ test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3)
-        self.conv2 = nn.Conv2d(in_channels=9,out_channels=4,kernel_size=2,padding=1)
-        self.pool = nn.AvgPool2d(2)
-        self.fc1 = nn.Linear(4 * 7 * 7, 64)
-        self.fc2 = nn.Linear(64, 16)
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3,padding=1)# 3*15*15 pading =1 为了利用边缘信息
+        self.conv2 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 3*3*13*13
+        self.pool1 = nn.AvgPool2d(2) # 3*3*6*6
+        self.conv3 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 9*3*4*4
+        self.fc1 = nn.Linear(3 * 4 * 4, 1)
 
     def forward(self,x):
         x = torch.relu(self.conv1(x))
         x = torch.relu(self.conv2(x))
-        x = self.pool(x)
+        x = self.pool1(x)
+        x = torch.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
-        x = torch.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
-
-class HeatMapGRU(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers):
-        super(HeatMapGRU, self).__init__()
-        self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
-
-    def forward(self,x):
-        output, _ = self.gru(x)
-        return output
-
-class CNN_GRU_Model(nn.Module):
-    def __init__(self, cnn, gru, hidden_size, output_size):
-        super(CNN_GRU_Model, self).__init__()
-        self.cnn = cnn
-        self.gru = gru
-        self.fc = nn.Linear(hidden_size, output_size)
-
-    def forward(self, x):
-        x = self.cnn(x)
-        x = x.unsqueeze(1)
-        x = self.gru(x)
-        x = self.fc(x)
+        x = self.fc1(x)
         return x
 
 # 创建模型实例
-cnn = HeatMapCNN()
-gru = HeatMapGRU(input_size=16, hidden_size=32, num_layers=2)
-model = CNN_GRU_Model(cnn, gru, hidden_size=32, output_size=1)
+model = HeatMapCNN()
 print(model)
-# model = HeatMapCNN()
-
 # 定义损失函数和优化器
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 # 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
