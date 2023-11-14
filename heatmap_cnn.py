@@ -3,6 +3,7 @@ import torch
 import os
 import torch.utils.data as Data
 import torch.nn as nn
+import torch.nn.functional as fc
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -39,8 +40,10 @@ def read_data(f_num,d):
         # 打开图像文件并进行预处理
         with Image.open(image_path) as img:
             # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
+            # img = img.convert("L")
             img = np.array(img)  # 将图像转化为NumPy数组
         img = img.transpose((2, 0, 1))
+        # img = img.reshape(1,15,15)
         # 将图像数据和标签添加到列表
         X.append(img)
         y.append(label)
@@ -49,11 +52,12 @@ def read_data(f_num,d):
 
 # f_num = 3
 # d = 5
+# X,y = read_data(3,5)
 X1,y1 = read_data(1,5)
 X2,y2 = read_data(2,5)
 X3,y3 = read_data(3,5)
-X = X1 + X2 + X3
-y = y1 + y2 + y3
+X =X1 + X2 + X3
+y =y1 + y2 + y3 
 
 # 将X和y转化为NumPy数组
 X = np.array(X)
@@ -65,7 +69,7 @@ y = np.array(y)
 # print(y.shape)
 
 # 归一化图像数据
-# X = X / 255.0  # 假设使用0-255的像素值
+X = X / 255.0  # 假设使用0-255的像素值
 # 划分数据集为训练集和验证集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -93,7 +97,7 @@ train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
 test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
 
 #Create dataset loader
-batch = 32
+batch = 8
 train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False)
 
@@ -101,17 +105,17 @@ test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3,padding=1)# 3*15*15 pading =1 为了利用边缘信息
-        self.conv2 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 3*3*13*13
-        self.pool1 = nn.AvgPool2d(2) # 3*3*6*6
-        self.conv3 = nn.Conv2d(in_channels=3,out_channels=3,kernel_size=3)# 9*3*4*4
-        self.fc1 = nn.Linear(3 * 4 * 4, 1)
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 3*15*15 pading =1 为了利用边缘信息
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 1*1*13*13
+        self.pool1 = nn.AvgPool2d(2) # 1*1*6*6
+        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 1*1*4*4
+        self.fc1 = nn.Linear(9 * 4 * 4, 1)
 
     def forward(self,x):
-        x = torch.relu(self.conv1(x))
-        x = torch.relu(self.conv2(x))
+        x = fc.leaky_relu(self.conv1(x))
+        x = fc.leaky_relu(self.conv2(x))
         x = self.pool1(x)
-        x = torch.relu(self.conv3(x))
+        x = fc.leaky_relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
         return x
@@ -121,7 +125,7 @@ model = HeatMapCNN()
 print(model)
 # 定义损失函数和优化器
 criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.00001) #lr
 # 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
 test_losses = []  # 测试损失
@@ -132,53 +136,39 @@ for epoch in range(num_epochs):
     for images, labels in train_data_loader:
         optimizer.zero_grad()
         outputs = model(images)
-        loss = criterion(outputs, labels)
+        al_label = labels.unsqueeze(1)
+        loss = criterion(outputs, al_label)
         loss.backward()
         optimizer.step()
+        # 查看梯度情况
+        # for name, parms in model.named_parameters(): 
+        #     print('-->name:', name, '-->grad_requirs:',parms.requires_grad, ' -->grad_value:',parms.grad)
     train_losses.append(loss.item() )
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
-    model.eval()
-    with torch.no_grad():
-        for images, labels in test_data_loader:
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-
-    test_losses.append(loss.item())
 
 # 训练完成后，你可以使用模型进行预测等任务
 model.eval()
-mse = 0.0
-mae = 0.0
-y_true = []
-y_pred = []
-with torch.no_grad():
-    for images, labels in test_data_loader:
-        outputs = model(images)
-        firtst_dim = outputs.shape[0] 
-        outputs = outputs.squeeze()
-        #避免批量处理后，只剩单个数据 outputs: tensor(-0.0082) labels: tensor([-0.5068])
-        if firtst_dim == 1:
-            outputs = outputs.unsqueeze(0)
-        y_true.extend(labels.tolist())
-        y_pred.extend(outputs.tolist())
-        loss = criterion(outputs, labels)
-        mse += mean_squared_error(labels, outputs)
-        mae += mean_absolute_error(labels, outputs)
+pre = model(x_test_tensor)
+if torch.cuda.is_available():
+    pre = pre.cpu()
+pre = pre.detach().numpy()
+y_test_tensor = y_test_tensor.cpu()
 
-mse /= len(test_data_loader)
-mae /= len(test_data_loader)
-rmse = np.sqrt(mse)
-r2 = r2_score(y_true, y_pred)
-print(f'Test MSE: {mse:.4f}')
-print(f'Test MAE: {mae:.4f}')
-print(f'Test RMSE: {rmse:.4f}')
-print(f'Test R^2: {r2:.4f}')
+mae = mean_absolute_error(y_test_tensor,pre)
+mse = mean_squared_error(y_test_tensor,pre)
+rmse = mean_squared_error(y_test_tensor,pre,squared=False)
+r2=r2_score(y_test_tensor,pre)
+
+print("MAE",mae)
+print("MSE",mse)
+print("RMSE",rmse)
+print("R2",r2)
 
 # 绘制训练和测试损失曲线
 plt.figure()
 plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
-plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
+# plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
