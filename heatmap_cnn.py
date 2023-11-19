@@ -53,11 +53,16 @@ def read_data(f_num,d):
 # f_num = 3
 # d = 5
 # X,y = read_data(3,5)
-X1,y1 = read_data(1,5)
-X2,y2 = read_data(2,5)
-X3,y3 = read_data(3,5)
-X =X1 + X2 + X3
-y =y1 + y2 + y3 
+X1_5,y1_5 = read_data(1,5)
+X2_5,y2_5 = read_data(2,5)
+X3_5,y3_5 = read_data(3,5)
+X1_10,y1_10 = read_data(1,10)
+X2_10,y2_10 = read_data(2,10)
+X3_10,y3_10 = read_data(3,10)
+# X =X1_5 + X2_5 + X3_5 
+# y =y1_5 + y2_5 + y3_5 
+X =X1_10 + X2_10 + X3_10 
+y =y1_10 + y2_10 + y3_10
 
 # 将X和y转化为NumPy数组
 X = np.array(X)
@@ -97,7 +102,7 @@ train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
 test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
 
 #Create dataset loader
-batch = 8
+batch = 16
 train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False)
 
@@ -105,12 +110,12 @@ test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 3*15*15 pading =1 为了利用边缘信息
-        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 1*1*13*13
-        self.pool1 = nn.AvgPool2d(2) # 1*1*6*6
-        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 1*1*4*4
-        self.fc1 = nn.Linear(9 * 4 * 4, 1)
-
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13
+        self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
+        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
+        # self.fc1 = nn.Linear(9 * 4 * 4, 1)#8*144  5mm
+        self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
     def forward(self,x):
         x = fc.leaky_relu(self.conv1(x))
         x = fc.leaky_relu(self.conv2(x))
@@ -125,7 +130,7 @@ model = HeatMapCNN()
 print(model)
 # 定义损失函数和优化器
 criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.00001) #lr
+optimizer = optim.Adam(model.parameters(), lr=0.0001) #lr
 # 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
 test_losses = []  # 测试损失

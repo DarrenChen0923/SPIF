@@ -12,7 +12,7 @@ def convert(num):
     new_num = int(num)
 
     return 171 + new_num 
-
+# 找3个out文件的最大最小误差值
 def readData(fnum,d):
     file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/1mm_file/outfile{fnum}/gridized1mm_error_cloud{fnum}.txt'
     with open(file_path,"r") as txtFile:
@@ -65,9 +65,11 @@ max_value = np.max(hot_map)
 d = 5
 fnum = 3
 
-out_data = np.zeros((342,342),np.float32)
+in_data = np.zeros((342,342),np.float32)
 
-file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/1mm_file/outfile{fnum}/gridized1mm_error_cloud{fnum}.txt'
+#读取fin文件的数据
+# file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/1mm_file/outfile{fnum}/gridized1mm_error_cloud{fnum}.txt'
+file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/fin_reg.txt'
 # file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/{d}mm_file/outfile{fnum}/gridized{d}mm_error_cloud{fnum}.txt'
 with open(file_path,"r") as txtFile:
 # with open("/Users/darren/资料/SPIF_DU/MainFolder/fin_reg.txt","r") as txtFile:
@@ -100,9 +102,9 @@ with open(file_path,"r") as txtFile:
 
         x = convert(float(line_split[0]))
         y = convert(float(line_split[1]))
-        error = float(line_split[3])
+        error = float(line_split[2])
         
-        out_data[x][y] = error
+        in_data[x][y] = error
 
         line = txtFile.readline()
 
@@ -112,32 +114,82 @@ with open(file_path,"r") as txtFile:
 # plt.title( "Heat Map" )
 
 #Min-Max标准化：
-def min_max_normalize(z_arr):
-    for i in range(len(z_arr)):
-        for j in range(len(z_arr[i])):
-            if z_arr[i][j] == 0.0:
-                z_arr[i][j] = -1
-            else:
-                z_arr[i][j] = (z_arr[i][j] - min_value) / (max_value - min_value)
+# def min_max_normalize(z_arr):
+#     for i in range(len(z_arr)):
+#         for j in range(len(z_arr[i])):
+#             if z_arr[i][j] == 0.0:
+#                 z_arr[i][j] = -1
+#             else:
+#                 z_arr[i][j] = (z_arr[i][j] - min_value) / (max_value - min_value)
 
-    return z_arr
+#     return z_arr
 
-out_data_temp = np.array(out_data)
-normalize_data = min_max_normalize(out_data)
-# #保存热力图
+in_data_temp = np.array(in_data)
+# normalize_data = min_max_normalize(out_data)
+# #保存fin热力图
 plt.axis('off')
 plt.set_cmap('Reds')
-plt.imshow(normalize_data)
-plt.savefig(f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/heatmap{fnum}.jpg',bbox_inches ='tight',pad_inches = 0)
+# plt.set_cmap('bwr')
+plt.imshow(in_data_temp)
+plt.savefig(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmap.jpg',bbox_inches ='tight',pad_inches = 0)
 plt.show()
+
 
 #保存后的热力图大小为：369*369
 #压缩热力图至342*342
 crop_size = (342,342)
-img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/heatmap{fnum}.jpg')
+img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmap.jpg')
 img_new = cv2.resize(img,crop_size,interpolation=cv2.INTER_CUBIC)
-cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/heatmap_resize{fnum}.jpg",img_new)
+cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/fin/heatmapresize.jpg",img_new)
 
+
+#Second: Cropping 𝐹_𝑖𝑛 heatmap to 3*3 (e.g., 5mm -> 15*15) small figure
+#Third: Calculate 𝐹_(1_𝑜𝑢𝑡) (2,3 as well) error
+#Crop figure to 3*3 / 342*342
+img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmapresize.jpg')
+image_copy = img.copy() 
+imgheight=img.shape[0]
+imgwidth=img.shape[1]
+
+#读取所需要的out文件和grid size
+out_data = np.zeros((342,342),np.float32)
+#读取fout文件的数据
+file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/{d}mm_file/outfile{fnum}/gridized{d}mm_error_cloud{fnum}.txt'
+with open(file_path,"r") as txtFile:
+    line = txtFile.readline()
+    while line:
+
+        # print(line)
+        
+        line_split = line.split(",")
+
+        if "nan" in line:
+            line = txtFile.readline()
+            continue
+
+        if "center" in line:
+            line = txtFile.readline()
+            continue
+
+        if "x" in line:
+            line = txtFile.readline()
+            continue
+        
+        if "y" in line:
+            line = txtFile.readline()
+            continue
+        
+        if "z" in line:
+            line = txtFile.readline()
+            continue
+
+        x = convert(float(line_split[0]))
+        y = convert(float(line_split[1]))
+        error = float(line_split[2])
+        
+        out_data[x][y] = error
+
+        line = txtFile.readline()
 
 #计算区间内平均误差
 def calculate_error(x_start,x_end,y_start,y_end):
@@ -146,7 +198,7 @@ def calculate_error(x_start,x_end,y_start,y_end):
     error = 0 
     for row in range(x_start, x_end + 1):
         for col in range(y_start, y_end + 1):
-            total += out_data_temp[row][col]
+            total += out_data[row][col]
             count += 1
 
     if count != 0:
@@ -154,21 +206,12 @@ def calculate_error(x_start,x_end,y_start,y_end):
     
     return error
 
-
-#Second: Cropping 𝐹_𝑖𝑛 heatmap to 3*3 (e.g., 5mm -> 15*15) small figure
-#Third: Calculate 𝐹_(1_𝑜𝑢𝑡) (2,3 as well) error
-#Crop figure to 3*3 / 342*342
-img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/heatmap_resize{fnum}.jpg')
-image_copy = img.copy() 
-imgheight=img.shape[0]
-imgwidth=img.shape[1]
-
 # 3*3 so M = 3*d
 M = 3 * d
 N = 3 * d
 x1 = 0
 y1 = 0
- 
+ #将fin的热力图根据grid size切割成小图片
 for y in range(0, imgheight, M):
     for x in range(0, imgwidth, N):
         if (imgheight - y) < M or (imgwidth - x) < N:
@@ -197,6 +240,7 @@ for y in range(0, imgheight, M):
         #Save each patch into file directory
         cv2.imwrite('saved_patches/'+'tile'+str(x)+'_'+str(y)+'.jpg', tiles)
         cv2.rectangle(img, (x, y), (x1, y1), (0, 255, 0), 1)  
+        #根据所选择的out文件和不同的grid size计算误差并保存
         name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/images/"+str(x1)+"_"+str(y1)+".jpg"
         error_name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/labels/"+str(x1)+"_"+str(y1)+".txt"
         with open(error_name,"w") as file:
