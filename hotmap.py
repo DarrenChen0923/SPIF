@@ -64,6 +64,7 @@ max_value = np.max(hot_map)
 #parameters
 d = 5
 fnum = 3
+rotate = 270
 
 in_data = np.zeros((342,342),np.float32)
 
@@ -150,6 +151,9 @@ img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmapresize.jpg'
 image_copy = img.copy() 
 imgheight=img.shape[0]
 imgwidth=img.shape[1]
+center = (imgwidth//2,imgheight//2)
+M_1 = cv2.getRotationMatrix2D(center,-90,1.0)
+image_copy = cv2.warpAffine(image_copy,M_1,(imgwidth,imgheight))
 
 #读取所需要的out文件和grid size
 out_data = np.zeros((342,342),np.float32)
@@ -191,6 +195,11 @@ with open(file_path,"r") as txtFile:
 
         line = txtFile.readline()
 
+#rotoate fout
+rotate_data_90 =  list(zip(* out_data[::-1]))
+rotate_data_180 =  list(zip(* rotate_data_90[::-1]))
+rotate_data_270 =  list(zip(* rotate_data_180[::-1]))
+
 #计算区间内平均误差
 def calculate_error(x_start,x_end,y_start,y_end):
     total = 0
@@ -198,7 +207,7 @@ def calculate_error(x_start,x_end,y_start,y_end):
     error = 0 
     for row in range(x_start, x_end + 1):
         for col in range(y_start, y_end + 1):
-            total += out_data[row][col]
+            total += rotate_data_270[row][col]
             count += 1
 
     if count != 0:
@@ -238,11 +247,14 @@ for y in range(0, imgheight, M):
             #Crop into patches of size MxN
             tiles = image_copy[y:y+M, x:x+N]
         #Save each patch into file directory
-        cv2.imwrite('saved_patches/'+'tile'+str(x)+'_'+str(y)+'.jpg', tiles)
+        cv2.imwrite(f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/saved_patches/'+'tile'+str(x)+'_'+str(y)+'.jpg', tiles)
         cv2.rectangle(img, (x, y), (x1, y1), (0, 255, 0), 1)  
         #根据所选择的out文件和不同的grid size计算误差并保存
-        name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/images/"+str(x1)+"_"+str(y1)+".jpg"
-        error_name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/labels/"+str(x1)+"_"+str(y1)+".txt"
+        # name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/images/"+str(x1)+"_"+str(y1)+".jpg"
+        # error_name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/labels/"+str(x1)+"_"+str(y1)+".txt"
+        # 旋转后路径
+        name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/images/"+str(x1)+"_"+str(y1)+".jpg"
+        error_name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/labels/"+str(x1)+"_"+str(y1)+".txt"
         with open(error_name,"w") as file:
             error = calculate_error(x,x+N,y,y+M)
             file.write(str(error))
@@ -250,8 +262,8 @@ for y in range(0, imgheight, M):
        
 print("Finish generating file")
 cv2.imshow("Patched Image2",img)
-cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/patched{fnum}.jpg",img)
-  
+# cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/patched{fnum}.jpg",img)
+cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/patched{fnum}.jpg",img)
 cv2.waitKey()
 cv2.destroyAllWindows()
 

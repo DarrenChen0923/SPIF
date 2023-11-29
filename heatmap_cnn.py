@@ -12,13 +12,14 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 
-def read_data(f_num,d):
-
-    # 设置图像文件夹和标签文件夹的路径
-    image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/images'
-    label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/labels'
-
-    # 获取图像文件夹中的所有图像文件
+def read_data(f_num,d,degree):
+    if degree == 0:
+        # 设置图像文件夹和标签文件夹的路径
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/labels'
+    else:
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
     # 创建空的训练数据列表，用于存储图像和标签
@@ -53,25 +54,22 @@ def read_data(f_num,d):
 # f_num = 3
 # d = 5
 # X,y = read_data(3,5)
-X1_5,y1_5 = read_data(1,5)
-X2_5,y2_5 = read_data(2,5)
-X3_5,y3_5 = read_data(3,5)
-X1_10,y1_10 = read_data(1,10)
-X2_10,y2_10 = read_data(2,10)
-X3_10,y3_10 = read_data(3,10)
-# X =X1_5 + X2_5 + X3_5 
-# y =y1_5 + y2_5 + y3_5 
-X =X1_10 + X2_10 + X3_10 
-y =y1_10 + y2_10 + y3_10
+X = []  # 用于存储图像数据
+y = []  # 用于存储标签
+degrees = [0,90,180,270]
+fums = [1,2,3]
+grids = [5]
+for fum in fums:
+    for grid in grids:
+        for degree in degrees:
+            X_fum_grid_degree,y_fum_grid_degree = read_data(fum,grid,degree)
+            X+=X_fum_grid_degree
+            y+=y_fum_grid_degree
 
 # 将X和y转化为NumPy数组
 X = np.array(X)
 y = np.array(y)
 
-# length = 1452
-# X=(1452, 3, 15, 15) y=(1452,)
-# print(X.shape)
-# print(y.shape)
 
 # 归一化图像数据
 X = X / 255.0  # 假设使用0-255的像素值
@@ -102,7 +100,7 @@ train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
 test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
 
 #Create dataset loader
-batch = 16
+batch = 64
 train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False)
 
@@ -112,15 +110,17 @@ class HeatMapCNN(nn.Module):
         super(HeatMapCNN,self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
         self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13
-        self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
-        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
+        # self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
+        # self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
         # self.fc1 = nn.Linear(9 * 4 * 4, 1)#8*144  5mm
-        self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
+        # self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
+        self.fc1 = nn.Linear(9 * 13 * 13, 1)#8*144  10mm    
+        # self.fc1 = nn.Linear(9 * 28 * 28, 1)#8*144  10mm    
     def forward(self,x):
-        x = fc.leaky_relu(self.conv1(x))
-        x = fc.leaky_relu(self.conv2(x))
-        x = self.pool1(x)
-        x = fc.leaky_relu(self.conv3(x))
+        x = fc.relu(self.conv1(x))
+        x = fc.relu(self.conv2(x))
+        # x = self.pool1(x)
+        # x = fc.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
         return x
@@ -129,8 +129,8 @@ class HeatMapCNN(nn.Module):
 model = HeatMapCNN()
 print(model)
 # 定义损失函数和优化器
-criterion = nn.L1Loss()
-optimizer = optim.Adam(model.parameters(), lr=0.0001) #lr
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.000002) #lr
 # 记录训练和测试过程中的损失
 train_losses = []  # 训练损失
 test_losses = []  # 测试损失
@@ -156,7 +156,7 @@ for epoch in range(num_epochs):
 model.eval()
 pre = model(x_test_tensor)
 if torch.cuda.is_available():
-    pre = pre.cpu()
+    pre = pre.gpu()
 pre = pre.detach().numpy()
 y_test_tensor = y_test_tensor.cpu()
 
