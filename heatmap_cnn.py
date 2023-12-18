@@ -11,6 +11,27 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
+from sklearn.model_selection import KFold
+
+class HeatMapCNN(nn.Module):
+    def __init__(self):
+        super(HeatMapCNN,self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13
+        # self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
+        # self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
+        # self.fc1 = nn.Linear(9 * 4 * 4, 1)#8*144  5mm
+        # self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
+        self.fc1 = nn.Linear(9 * 13 * 13, 1)#8*144  10mm    
+        # self.fc1 = nn.Linear(9 * 28 * 28, 1)#8*144  10mm    
+    def forward(self,x):
+        x = fc.relu(self.conv1(x))
+        x = fc.relu(self.conv2(x))
+        # x = self.pool1(x)
+        # x = fc.relu(self.conv3(x))
+        x = x.view(x.shape[0],-1)
+        x = self.fc1(x)
+        return x
 
 def read_data(f_num,d,degree):
     if degree == 0:
@@ -73,108 +94,199 @@ y = np.array(y)
 
 # 归一化图像数据
 X = X / 255.0  # 假设使用0-255的像素值
-# 划分数据集为训练集和验证集
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
-y_train = y_train.astype('float32')
-y_test = y_test.astype('float32')
-
-
-#tensor to numpy
-x_train_tensor = torch.from_numpy(X_train)
-x_test_tensor = torch.from_numpy(X_test)
-y_train_tensor = torch.from_numpy(y_train)
-y_test_tensor = torch.from_numpy(y_test)
-
- #gpu environment: transfer into cuda
-if torch.cuda.is_available():
-    x_train_tensor = x_train_tensor.cuda()
-    x_test_tensor = x_test_tensor.cuda()
-    y_train_tensor = y_train_tensor.cuda()
-    y_test_tensor = y_test_tensor.cuda()
-
-#Cominbe dataset
-train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
-test_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
-
-#Create dataset loader
 batch = 64
-train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
-test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=False)
 
+# 划分数据集为训练集和验证集
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# X_train = X_train.astype('float32')
+# X_test = X_test.astype('float32')
+# y_train = y_train.astype('float32')
+# y_test = y_test.astype('float32')
+
+
+# #tensor to numpy
+# x_train_tensor = torch.from_numpy(X_train)
+# x_test_tensor = torch.from_numpy(X_test)
+# y_train_tensor = torch.from_numpy(y_train)
+# y_test_tensor = torch.from_numpy(y_test)
+
+#  #gpu environment: transfer into cuda
+# if torch.cuda.is_available():
+#     x_train_tensor = x_train_tensor.cuda()
+#     x_test_tensor = x_test_tensor.cuda()
+#     y_train_tensor = y_train_tensor.cuda()
+#     y_test_tensor = y_test_tensor.cuda()
+
+# #Cominbe dataset
+# train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
+# val_dataset = Data.TensorDataset(x_test_tensor,y_test_tensor)
+
+# #Create dataset loader
+
+# train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
+# val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
+
+kf = KFold(n_splits=10, shuffle=True, random_state=42)
+for fold, (train_idx, test_idx) in enumerate(kf.split(X)):
+    # 获取训练集和测试集
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
+
+    # 将剩下的9份按照8:2的比例划分为训练集和验证集
+    train_size = int(0.8 * len(train_idx))
+    X_train, X_val = X_train[:train_size], X_train[train_size:]
+    y_train, y_val = y_train[:train_size], y_train[train_size:]
+
+    X_test = X_test.astype('float32')
+    y_test = y_test.astype('float32')
+    X_train = X_train.astype('float32')
+    X_val = X_val.astype('float32')
+    y_train = y_train.astype('float32')
+    y_val = y_val.astype('float32')
+
+
+    #tensor to numpy
+    x_train_tensor = torch.from_numpy(X_train)
+    X_val_tensor = torch.from_numpy(X_val)
+    y_train_tensor = torch.from_numpy(y_train)
+    y_val_tensor = torch.from_numpy(y_val)
+    X_test_tensor = torch.from_numpy(X_test)
+    y_test_tensor = torch.from_numpy(y_test)
+
+    #gpu environment: transfer into cuda
+    if torch.cuda.is_available():
+        x_train_tensor = x_train_tensor.cuda()
+        X_val_tensor = X_val_tensor.cuda()
+        X_test_tensor = X_test_tensor.cuda()
+        y_test_tensor = y_test_tensor.cuda()
+        y_train_tensor = y_train_tensor.cuda()
+        y_val_tensor = y_val_tensor.cuda()
+        
+
+    #Cominbe dataset
+    train_dataset = Data.TensorDataset(x_train_tensor,y_train_tensor)
+    test_dataset = Data.TensorDataset(X_test_tensor,y_test_tensor)
+    val_dataset = Data.TensorDataset(X_val_tensor,y_val_tensor)
+
+    # #Create dataset loader
+    train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
+    test_data_loader = Data.DataLoader(test_dataset, batch_size=batch, shuffle=True)
+    val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
+
+    # 在这里你可以使用 X_train, y_train 进行模型的训练
+    # 使用 X_val, y_val 进行模型的验证
+    # 创建模型实例
+    model = HeatMapCNN()
+    print(model)
+    # 定义损失函数和优化器
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.000002) #lr
+    # 记录训练和测试过程中的损失
+    train_losses = []  # 训练损失
+    test_losses = []  # 测试损失
+
+    # 训练模型
+    num_epochs = 1000
+    for epoch in range(num_epochs):
+        for images, labels in train_data_loader:
+            optimizer.zero_grad()
+            outputs = model(images)
+            al_label = labels.unsqueeze(1)
+            loss = criterion(outputs, al_label)
+            loss.backward()
+            optimizer.step()
+            # 查看梯度情况
+            # for name, parms in model.named_parameters(): 
+            #     print('-->name:', name, '-->grad_requirs:',parms.requires_grad, ' -->grad_value:',parms.grad)
+        train_losses.append(loss.item() )
+        for images, labels in val_data_loader:
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+        test_losses.append(loss.item())
+        print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
+
+    # 使用 X_test, y_test 进行最终的测试评估
+    # 训练完成后，你可以使用模型进行预测等任务
+    model.eval()
+    pre = model(X_test_tensor)
+    if torch.cuda.is_available():
+        pre = pre.gpu()
+    pre = pre.detach().numpy()
+    y_test_tensor = y_test_tensor.cpu()
+
+    mae = mean_absolute_error(y_test_tensor,pre)
+    mse = mean_squared_error(y_test_tensor,pre)
+    rmse = mean_squared_error(y_test_tensor,pre,squared=False)
+    r2=r2_score(y_test_tensor,pre)
+
+    print("Fold:",fold+1)
+    print("MAE",mae)
+    print("MSE",mse)
+    print("RMSE",rmse)
+    print("R2",r2)
+    result_file_path = '/Users/darren/资料/SPIF_DU/Croppings/result/5mm/tencrosvalidationresult.txt'
+    with open(result_file_path,"a") as file:
+            file.write(str(fold+1))
+            file.write("\nMAE"+str(mae))
+            file.write("\nMSE"+str(mse))
+            file.write("\nRMSE"+str(rmse))
+            file.write("\nR2"+str(r2)+"\n")
+    # plt.figure()
+    # plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
+    # # plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.legend()
+    # plt.show()
+    # # 打印当前折数和各集合的大小
+    # print(f"Fold {fold + 1} - Train: {len(X_train)}, Validation: {len(X_val)}, Test: {len(X_test)}")
    
-class HeatMapCNN(nn.Module):
-    def __init__(self):
-        super(HeatMapCNN,self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
-        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13
-        # self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
-        # self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
-        # self.fc1 = nn.Linear(9 * 4 * 4, 1)#8*144  5mm
-        # self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
-        self.fc1 = nn.Linear(9 * 13 * 13, 1)#8*144  10mm    
-        # self.fc1 = nn.Linear(9 * 28 * 28, 1)#8*144  10mm    
-    def forward(self,x):
-        x = fc.relu(self.conv1(x))
-        x = fc.relu(self.conv2(x))
-        # x = self.pool1(x)
-        # x = fc.relu(self.conv3(x))
-        x = x.view(x.shape[0],-1)
-        x = self.fc1(x)
-        return x
-
-# 创建模型实例
-model = HeatMapCNN()
-print(model)
-# 定义损失函数和优化器
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.000002) #lr
-# 记录训练和测试过程中的损失
-train_losses = []  # 训练损失
-test_losses = []  # 测试损失
-
-# 训练模型
-num_epochs = 1000
-for epoch in range(num_epochs):
-    for images, labels in train_data_loader:
-        optimizer.zero_grad()
-        outputs = model(images)
-        al_label = labels.unsqueeze(1)
-        loss = criterion(outputs, al_label)
-        loss.backward()
-        optimizer.step()
-        # 查看梯度情况
-        # for name, parms in model.named_parameters(): 
-        #     print('-->name:', name, '-->grad_requirs:',parms.requires_grad, ' -->grad_value:',parms.grad)
-    train_losses.append(loss.item() )
-    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
 
-# 训练完成后，你可以使用模型进行预测等任务
-model.eval()
-pre = model(x_test_tensor)
-if torch.cuda.is_available():
-    pre = pre.gpu()
-pre = pre.detach().numpy()
-y_test_tensor = y_test_tensor.cpu()
+# # 创建模型实例
+# model = HeatMapCNN()
+# print(model)
+# # 定义损失函数和优化器
+# criterion = nn.MSELoss()
+# optimizer = optim.Adam(model.parameters(), lr=0.000002) #lr
+# # 记录训练和测试过程中的损失
+# train_losses = []  # 训练损失
+# test_losses = []  # 测试损失
 
-mae = mean_absolute_error(y_test_tensor,pre)
-mse = mean_squared_error(y_test_tensor,pre)
-rmse = mean_squared_error(y_test_tensor,pre,squared=False)
-r2=r2_score(y_test_tensor,pre)
+# # 训练模型
+# num_epochs = 1000
+# for epoch in range(num_epochs):
+#     for images, labels in train_data_loader:
+#         optimizer.zero_grad()
+#         outputs = model(images)
+#         al_label = labels.unsqueeze(1)
+#         loss = criterion(outputs, al_label)
+#         loss.backward()
+#         optimizer.step()
+#         # 查看梯度情况
+#         # for name, parms in model.named_parameters(): 
+#         #     print('-->name:', name, '-->grad_requirs:',parms.requires_grad, ' -->grad_value:',parms.grad)
+#     train_losses.append(loss.item() )
+#     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
-print("MAE",mae)
-print("MSE",mse)
-print("RMSE",rmse)
-print("R2",r2)
+
+# # 训练完成后，你可以使用模型进行预测等任务
+# model.eval()
+# pre = model(x_test_tensor)
+# if torch.cuda.is_available():
+#     pre = pre.gpu()
+# pre = pre.detach().numpy()
+# y_test_tensor = y_test_tensor.cpu()
+
+# mae = mean_absolute_error(y_test_tensor,pre)
+# mse = mean_squared_error(y_test_tensor,pre)
+# rmse = mean_squared_error(y_test_tensor,pre,squared=False)
+# r2=r2_score(y_test_tensor,pre)
+
+# print("MAE",mae)
+# print("MSE",mse)
+# print("RMSE",rmse)
+# print("R2",r2)
 
 # 绘制训练和测试损失曲线
-plt.figure()
-plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
-# plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
