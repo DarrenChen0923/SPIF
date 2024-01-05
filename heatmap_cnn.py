@@ -13,22 +13,19 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 
+degrees = [0,90,180,270]
+fums = [1,2,3]
+grids = [20]
+
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
-        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13
-        # self.pool1 = nn.AvgPool2d(2) # 8*9*6*6
-        # self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*4*4
-        # self.fc1 = nn.Linear(9 * 4 * 4, 1)#8*144  5mm
-        # self.fc1 = nn.Linear(9 * 12 * 12, 1)#8*144  10mm    
-        self.fc1 = nn.Linear(9 * 13 * 13, 1)#8*144  10mm    
-        # self.fc1 = nn.Linear(9 * 28 * 28, 1)#8*144  10mm    
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13  
+        self.fc1 = nn.Linear(9 * (3*grids[0]-2) * (3*grids[0]-2), 1)  
     def forward(self,x):
         x = fc.relu(self.conv1(x))
         x = fc.relu(self.conv2(x))
-        # x = self.pool1(x)
-        # x = fc.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
         return x
@@ -77,9 +74,7 @@ def read_data(f_num,d,degree):
 # X,y = read_data(3,5)
 X = []  # 用于存储图像数据
 y = []  # 用于存储标签
-degrees = [0,90,180,270]
-fums = [1,2,3]
-grids = [5]
+
 for fum in fums:
     for grid in grids:
         for degree in degrees:
@@ -225,7 +220,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X)):
     print("MSE",mse)
     print("RMSE",rmse)
     print("R2",r2)
-    result_file_path = '/Users/darren/资料/SPIF_DU/Croppings/result/5mm/tencrosvalidationresult.txt'
+    result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/result/{grids[0]}mm/tencrosvalidationresult.txt'
     with open(result_file_path,"a") as file:
             file.write(str(fold+1))
             file.write("\nMAE"+str(mae))
