@@ -57,7 +57,7 @@ for fnum in fnum_list:
 
 min_value = np.min(hot_map)
 max_value = np.max(hot_map)
-
+print("Z:",(max_value-min_value))
 
 #First: Draw F_in heatmap
 
