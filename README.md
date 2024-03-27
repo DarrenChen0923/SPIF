@@ -25,7 +25,7 @@ pip install torch torchvision torchaudio
 There are also some libraries commonly used in artificial intelligence that need to be installed (numpy, matplotlib, etc.). You can install them according to the prompts.
 
 ## Dataset
-The entire project has 4 sets of original data, namely D4_1_completo.txt, D4_2_completo.txt, D4_3_completo.txt and fin_reg.txt in MainFolder. Fin_REG is called Fin and the remaining three are called Fout.
+The entire project has 4 sets of original data, namely D4_1_completo.txt, D4_2_completo.txt, D4_3_completo.txt and fin_reg.txt in MainFolder. Fin_reg is called Fin and the remaining three are called Fout.
 
 Process raw data according to different project requirements
 
