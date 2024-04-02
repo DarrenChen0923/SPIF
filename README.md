@@ -5,7 +5,7 @@ At present, the prediction of springback error has been realized through GRU and
 
 The entire project is based on pytorch and scikit-learn libraries.
 
-## Install
+## Install Package
 
 1. Clone project：
 
