@@ -48,3 +48,33 @@ The path to the data used to generate the Fin heat map
 ```
 
 
+## Run Code
+
+1. Generate Heatmap
+
+```bash
+Generate Fin file heatmap
+file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/fin_reg.txt'
+
+Generate Fout file heatmap
+# file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/{d}mm_file/outfile{fnum}/gridized{d}mm_error_cloud{fnum}.txt'
+d: Grid size (5,10,15,20)
+fum: Fout number (1,2,3)
+
+python3 hotmap.py
+```
+Change to right directory according to your machine.
+
+2. Run CNN model
+
+```bash
+python3 heatmap_cnn.py
+
+```
+
+3. Draw figure(line chart)
+
+```bash
+python3 draw_fig.py
+```
+
