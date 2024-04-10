@@ -13,6 +13,7 @@ def convert(num):
 
     return 171 + new_num 
 # 找3个out文件的最大最小误差值
+# Find the maximum and minimum error values ​​of 3 out files
 def readData(fnum,d):
     file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/1mm_file/outfile{fnum}/gridized1mm_error_cloud{fnum}.txt'
     with open(file_path,"r") as txtFile:
@@ -69,6 +70,7 @@ rotate = 270
 in_data = np.zeros((342,342),np.float32)
 
 #读取fin文件的数据
+# Read F_in 
 # file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/1mm_file/outfile{fnum}/gridized1mm_error_cloud{fnum}.txt'
 file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/fin_reg.txt'
 # file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/{d}mm_file/outfile{fnum}/gridized{d}mm_error_cloud{fnum}.txt'
@@ -127,7 +129,8 @@ with open(file_path,"r") as txtFile:
 
 in_data_temp = np.array(in_data)
 # normalize_data = min_max_normalize(out_data)
-# #保存fin热力图
+# 保存fin热力图
+# Svae F_in heatmap
 plt.axis('off')
 plt.set_cmap('Reds')
 # plt.set_cmap('bwr')
@@ -136,8 +139,10 @@ plt.savefig(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmap.jpg',bbox_inche
 plt.show()
 
 
-#保存后的热力图大小为：369*369
-#压缩热力图至342*342
+# 保存后的热力图大小为：369*369
+# The size of the saved heatmap is: 369*369
+# 压缩热力图至342*342
+# Compress heat map to 342*342
 crop_size = (342,342)
 img = cv2.imread(f'/Users/darren/资料/SPIF_DU/Croppings/fin/heatmap.jpg')
 img_new = cv2.resize(img,crop_size,interpolation=cv2.INTER_CUBIC)
@@ -155,9 +160,11 @@ center = (imgwidth//2,imgheight//2)
 M_1 = cv2.getRotationMatrix2D(center,-90,1.0)
 image_copy = cv2.warpAffine(image_copy,M_1,(imgwidth,imgheight))
 
-#读取所需要的out文件和grid size
+# 读取所需要的out文件和grid size
+# Store data
 out_data = np.zeros((342,342),np.float32)
-#读取fout文件的数据
+# 读取fout文件的数据
+# Read F_out 
 file_path = f'/Users/darren/资料/SPIF_DU/MainFolder/{d}mm_file/outfile{fnum}/gridized{d}mm_error_cloud{fnum}.txt'
 with open(file_path,"r") as txtFile:
     line = txtFile.readline()
@@ -200,7 +207,8 @@ rotate_data_90 =  list(zip(* out_data[::-1]))
 rotate_data_180 =  list(zip(* rotate_data_90[::-1]))
 rotate_data_270 =  list(zip(* rotate_data_180[::-1]))
 
-#计算区间内平均误差
+# 计算区间内平均误差
+# Calculate error
 def calculate_error(x_start,x_end,y_start,y_end):
     total = 0
     count = 0
@@ -228,7 +236,8 @@ M = 3 * d
 N = 3 * d
 x1 = 0
 y1 = 0
- #将fin的热力图根据grid size切割成小图片
+# 将fin的热力图根据grid size切割成小图片
+# Cropping heatmao according to grid size
 for y in range(0, imgheight, M):
     for x in range(0, imgwidth, N):
         if (imgheight - y) < M or (imgwidth - x) < N:
@@ -264,8 +273,10 @@ for y in range(0, imgheight, M):
             name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/images/"+str(x1)+"_"+str(y1)+".jpg"
             error_name = f"/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/rotate/{rotate}/labels/"+str(x1)+"_"+str(y1)+".txt"
         cv2.rectangle(img, (x, y), (x1, y1), (0, 255, 0), 1)  
-        #根据所选择的out文件和不同的grid size计算误差并保存
+        # 根据所选择的out文件和不同的grid size计算误差并保存
+        # Svae image
         # 旋转后路径
+        # path after rorate 
         with open(error_name,"w") as file:
             error = calculate_error(x,x+N,y,y+M)
             file.write(str(error))
@@ -288,46 +299,58 @@ import os
 from sklearn.model_selection import train_test_split
 
 # 设置图像文件夹和标签文件夹的路径
+# Set image and label path
 image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/images'
 label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{fnum}_out/{d}mm/labels'
 
 # 获取图像文件夹中的所有图像文件
+# get all file from iamge folder
 image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
 # 创建空的训练数据列表，用于存储图像和标签
-X = []  # 用于存储图像数据
-y = []  # 用于存储标签
+# Create empty list to store iamge and label
+X = []  # 用于存储图像数据 Store Image 
+y = []  # 用于存储标签 Store Label
 
 # 遍历图像文件列表
+# Iterate image file 
 for image_path in image_files:
     # 获取图像文件名，不包括路径和文件扩展名
+    # Get images file name
     image_filename = os.path.splitext(os.path.basename(image_path))[0]
 
     # 构建相应的标签文件路径
+    # Build path for label file
     label_path = os.path.join(label_folder, f'{image_filename}.txt')
 
     # 读取标签文件内容
+    # Read label file
     with open(label_path, 'r') as label_file:
         label = label_file.read().strip()  # 假设标签是一行文本
 
     # 打开图像文件并进行预处理
+    # open image file and do preprocessing
     with Image.open(image_path) as img:
         # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
-        img = img.resize((224, 224))  # 例如，将图像调整为 224x224 像素
-        img = np.array(img)  # 将图像转化为NumPy数组
+        img = img.resize((224, 224))  # 将图像调整为 224x224 像素 
+        img = np.array(img)  # 将图像转化为NumPy数组  transfer image to Numpy array
 
     # 将图像数据和标签添加到列表
+    # put image and label into list
     X.append(img)
     y.append(label)
 
 # 将X和y转化为NumPy数组
+# transfer X and y into numpy array
 X = np.array(X)
 y = np.array(y)
 
 # 归一化图像数据（根据需要）
-X = X / 255.0  # 假设使用0-255的像素值
+# Normalise
+X = X / 255.0  # 使用0-255的像素值
 
 # 划分数据集为训练集和验证集
+# Divide dataset into train set and validation set
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Training model. Go to heatmap_cnn.py
