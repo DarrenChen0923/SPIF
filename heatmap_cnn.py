@@ -12,10 +12,11 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
+from PIL import Image
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [10]
+grids = [5]
 
 class HeatMapCNN(nn.Module):
     def __init__(self):
@@ -30,6 +31,13 @@ class HeatMapCNN(nn.Module):
         x = self.fc1(x)
         return x
 
+# 自定义排序函数
+def numeric_sort(file_name):
+    # 提取文件名中的数字部分作为排序关键字
+    file_name_parts = file_name.split('/')[-1].split('_')
+    file_name_parts[-1] = file_name_parts[-1].split('.')[0]  # 去掉文件后缀
+    return int(file_name_parts[0]), int(file_name_parts[1])
+
 def read_data(f_num,d,degree):
     if degree == 0:
         # 设置图像文件夹和标签文件夹的路径
@@ -41,6 +49,10 @@ def read_data(f_num,d,degree):
         label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
+   # 按照数字排序文件列表
+    image_files = sorted(image_files, key=numeric_sort)
+    # image_files.sort(key=lambda x:int(x.split('.'[0])))
+
     # 创建空的训练数据列表，用于存储图像和标签
     # Create empty list to store iamges and lables
     X = []  # 用于存储图像数据 store images
@@ -48,7 +60,9 @@ def read_data(f_num,d,degree):
 
     # 遍历图像文件列表
     # Iterate Images
+    count = 0
     for image_path in image_files:
+        count+=1
         # 获取图像文件名，不包括路径和文件扩展名
         # Get images file name
         image_filename = os.path.splitext(os.path.basename(image_path))[0]
@@ -65,6 +79,26 @@ def read_data(f_num,d,degree):
         # 打开图像文件并进行预处理
         # open image file and do preprocessing
         with Image.open(image_path) as img:
+            if count == 72:
+                image = img.convert("RGB")
+
+                # 获取图像的像素数据
+                pixels = list(image.getdata())
+
+                total_r, total_g, total_b = 0, 0, 0
+                total_pixels = len(pixels)
+
+                for r, g, b in pixels:
+                    total_r += r
+                    total_g += g
+                    total_b += b
+
+                avg_r = total_r // total_pixels
+                avg_g = total_g // total_pixels
+                avg_b = total_b // total_pixels
+
+
+                print(f"Average RGB value of the image f_num={f_num},degree={degree},d={d}: R={avg_r/255}, G={avg_g/255}, B={avg_b/255},z = {label}")
             # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
             # img = img.convert("L")
             img = np.array(img)  # 将图像转化为NumPy数组 transfer image to Numpy array
@@ -251,7 +285,15 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # plt.show()
     # # 打印当前折数和各集合的大小
     # print(f"Fold {fold + 1} - Train: {len(X_train)}, Validation: {len(X_val)}, Test: {len(X_test)}")
-   
+
+
+#保存模型
+#Save model
+# torch.save({
+#     'model_state_dict': model.state_dict(),
+#     'optimizer_state_dict': optimizer.state_dict(),
+# }, '/Users/darren/资料/SPIF_DU/Croppings/trained_model.pth')
+
 # validation的结果
 # Result of validation
 model.eval()
@@ -271,3 +313,17 @@ print("MAE",mae)
 print("MSE",mse)
 print("RMSE",rmse)
 print("R2",r2)
+
+
+
+# # 定义模型和优化器
+# model = MyModel()
+# optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# # 加载模型的状态字典和优化器的状态字典
+# checkpoint = torch.load('trained_model.pth')
+# model.load_state_dict(checkpoint['model_state_dict'])
+# optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+# # 将模型设置为评估模式（不启用 Dropout 等）
+# model.eval()

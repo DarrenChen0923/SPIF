@@ -65,7 +65,7 @@ print("Z:",(max_value-min_value))
 #parameters
 d = 20
 fnum = 3
-rotate = 270
+rotate = 90
 
 in_data = np.zeros((342,342),np.float32)
 
@@ -157,7 +157,7 @@ image_copy = img.copy()
 imgheight=img.shape[0]
 imgwidth=img.shape[1]
 center = (imgwidth//2,imgheight//2)
-M_1 = cv2.getRotationMatrix2D(center,-90,1.0)
+M_1 = cv2.getRotationMatrix2D(center,rotate,1.0)
 image_copy = cv2.warpAffine(image_copy,M_1,(imgwidth,imgheight))
 
 # 读取所需要的out文件和grid size
