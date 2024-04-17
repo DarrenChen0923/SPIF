@@ -63,9 +63,9 @@ print("Z:",(max_value-min_value))
 #First: Draw F_in heatmap
 
 #parameters
-d = 20
+d = 10
 fnum = 3
-rotate = 90
+rotate = 270
 
 in_data = np.zeros((342,342),np.float32)
 

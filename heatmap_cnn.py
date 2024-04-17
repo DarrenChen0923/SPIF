@@ -16,7 +16,7 @@ from PIL import Image
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [5]
+grids = [20]
 
 class HeatMapCNN(nn.Module):
     def __init__(self):
@@ -79,7 +79,7 @@ def read_data(f_num,d,degree):
         # 打开图像文件并进行预处理
         # open image file and do preprocessing
         with Image.open(image_path) as img:
-            if count == 72:
+            if count == 5:
                 image = img.convert("RGB")
 
                 # 获取图像的像素数据
@@ -224,7 +224,8 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # 定义损失函数和优化器
     # Defein optimizer and criterion
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.000002) #lr
+    learning_rate = 0.000002
+    optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
     # 记录训练和测试过程中的损失
     # store loss during train and test
     train_losses = []  # 训练损失 train loss
@@ -288,11 +289,11 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
 
 
 #保存模型
-#Save model
-# torch.save({
-#     'model_state_dict': model.state_dict(),
-#     'optimizer_state_dict': optimizer.state_dict(),
-# }, '/Users/darren/资料/SPIF_DU/Croppings/trained_model.pth')
+# Save model
+torch.save({
+    'model_state_dict': model.state_dict(),
+    'optimizer_state_dict': optimizer.state_dict(),
+},  f'/Users/darren/资料/SPIF_DU/Croppings/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}.pth')
 
 # validation的结果
 # Result of validation
