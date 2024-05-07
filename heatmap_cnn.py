@@ -16,7 +16,7 @@ from PIL import Image
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [20]
+grids = [5]
 
 class HeatMapCNN(nn.Module):
     def __init__(self):
@@ -42,11 +42,15 @@ def read_data(f_num,d,degree):
     if degree == 0:
         # 设置图像文件夹和标签文件夹的路径
         # set Image file and label file path
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/labels'
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/labels'
+        # image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/images'
+        # label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/labels'
     else:
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/labels'
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/rotate/{degree}/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/rotate/{degree}/labels'
+        # image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/images'
+        # label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
    # 按照数字排序文件列表
@@ -133,7 +137,7 @@ y = np.array(y)
 # 归一化图像数据
 # Normalise
 X = X / 255.0  # 使用0-255的像素值
-batch = 8
+batch = 64
 
 # 划分数据集为训练集和验证集
 # Divide dataset into train set and validation set
@@ -224,7 +228,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # 定义损失函数和优化器
     # Defein optimizer and criterion
     criterion = nn.MSELoss()
-    learning_rate = 0.000002
+    learning_rate = 0.0001
     optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
     # 记录训练和测试过程中的损失
     # store loss during train and test
@@ -271,12 +275,13 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     #记录的是 测试集的结果
     # Store test data result
     # result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
-    # with open(result_file_path,"a") as file:
-    #         file.write(str(fold+1))
-    #         file.write("\nMAE"+str(mae))
-    #         file.write("\nMSE"+str(mse))
-    #         file.write("\nRMSE"+str(rmse))
-    #         file.write("\nR2"+str(r2)+"\n")
+    result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/result/5mm/tencrosvalidationresult_validate.txt'
+    with open(result_file_path,"a") as file:
+            file.write(str(fold+1))
+            file.write("\nMAE: "+str(mae))
+            file.write("\nMSE: "+str(mse))
+            file.write("\nRMSE: "+str(rmse))
+            file.write("\nR2: "+str(r2)+"\n")
     # plt.figure()
     # plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
     # # plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
@@ -284,8 +289,8 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # plt.ylabel('Loss')
     # plt.legend()
     # plt.show()
-    # # 打印当前折数和各集合的大小
-    # print(f"Fold {fold + 1} - Train: {len(X_train)}, Validation: {len(X_val)}, Test: {len(X_test)}")
+    # 打印当前折数和各集合的大小
+    print(f"Fold {fold + 1} - Train: {len(X_train)}, Validation: {len(X_val_fold)}, Test: {len(X_test)}")
 
 
 #保存模型

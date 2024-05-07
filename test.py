@@ -83,26 +83,52 @@
 import numpy as np
 
 # 数据
-mae_values = [0.009187508, 0.006644961, 0.007875677, 0.011105348, 0.011607021, 0.006646241, 0.010457921, 0.006071983, 0.0074077644, 0.007851122]
-mse_values = [0.00015824367, 7.7353e-05, 0.00010460532, 0.00022380063, 0.00023437921, 7.715986e-05, 0.00019336004, 8.015862e-05, 8.688254e-05, 0.00012927296]
-rmse_values = [0.012579494, 0.008795056, 0.010227675, 0.014959968, 0.015309448, 0.008784069, 0.013905396, 0.0089531345, 0.0093210805, 0.011369826]
-r2_values = [0.9237421159194458, 0.9691514655757612, 0.9596428348019868, 0.9043298920971703, 0.8758789014977872, 0.9709607956862811, 0.8991070622709431, 0.9695654145434488, 0.9649408858767022, 0.9443956759477561]
+# mae_values = [0.009187508, 0.006644961, 0.007875677, 0.011105348, 0.011607021, 0.006646241, 0.010457921, 0.006071983, 0.0074077644, 0.007851122]
+# mse_values = [0.00015824367, 7.7353e-05, 0.00010460532, 0.00022380063, 0.00023437921, 7.715986e-05, 0.00019336004, 8.015862e-05, 8.688254e-05, 0.00012927296]
+# rmse_values = [0.012579494, 0.008795056, 0.010227675, 0.014959968, 0.015309448, 0.008784069, 0.013905396, 0.0089531345, 0.0093210805, 0.011369826]
+# r2_values = [0.9237421159194458, 0.9691514655757612, 0.9596428348019868, 0.9043298920971703, 0.8758789014977872, 0.9709607956862811, 0.8991070622709431, 0.9695654145434488, 0.9649408858767022, 0.9443956759477561]
 
-# 使用 NumPy 计算平均值和标准差
-mae_mean = np.mean(mae_values)
-mae_std = np.std(mae_values)
+# # 使用 NumPy 计算平均值和标准差
+# mae_mean = np.mean(mae_values)
+# mae_std = np.std(mae_values)
 
-mse_mean = np.mean(mse_values)
-mse_std = np.std(mse_values)
+# mse_mean = np.mean(mse_values)
+# mse_std = np.std(mse_values)
 
-rmse_mean = np.mean(rmse_values)
-rmse_std = np.std(rmse_values)
+# rmse_mean = np.mean(rmse_values)
+# rmse_std = np.std(rmse_values)
 
-r2_mean = np.mean(r2_values)
-r2_std = np.std(r2_values)
+# r2_mean = np.mean(r2_values)
+# r2_std = np.std(r2_values)
 
-# 打印结果
-print(f'MAE Mean: {mae_mean}, Standard Deviation: {mae_std}')
-print(f'MSE Mean: {mse_mean}, Standard Deviation: {mse_std}')
-print(f'RMSE Mean: {rmse_mean}, Standard Deviation: {rmse_std}')
-print(f'R2 Mean: {r2_mean}, Standard Deviation: {r2_std}')
+# # 打印结果
+# print(f'MAE Mean: {mae_mean}, Standard Deviation: {mae_std}')
+# print(f'MSE Mean: {mse_mean}, Standard Deviation: {mse_std}')
+# print(f'RMSE Mean: {rmse_mean}, Standard Deviation: {rmse_std}')
+# print(f'R2 Mean: {r2_mean}, Standard Deviation: {r2_std}')
+
+
+import cv2
+
+
+def compare_images(image1_path, image2_path):
+    # 读取图片
+    image1 = cv2.imread(image1_path)
+    image2 = cv2.imread(image2_path)
+
+    # 检查图片尺寸是否相同
+    if image1.shape == image2.shape:
+        # 比较两张图片的每个像素是否相同
+        difference = cv2.subtract(image1, image2)
+        b, g, r = cv2.split(difference)
+        if cv2.countNonZero(b) == 0 and cv2.countNonZero(g) == 0 and cv2.countNonZero(r) == 0:
+            return True
+    return False
+
+# 比较两个图片
+image1_path = "/Users/darren/资料/SPIF_DU/Croppings/f1_out/5mm/patched1.jpg"
+image2_path = "/Users/darren/资料/SPIF_DU/Croppings/f2_out/5mm/patched2.jpg"
+if compare_images(image1_path, image2_path):
+    print("图片相同")
+else:
+    print("图片不同")
