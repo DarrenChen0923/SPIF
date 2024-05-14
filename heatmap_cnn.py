@@ -16,17 +16,20 @@ from PIL import Image
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [5]
+grids = [20]
+version = 3
 
 class HeatMapCNN(nn.Module):
     def __init__(self):
         super(HeatMapCNN,self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
-        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13  
-        self.fc1 = nn.Linear(9 * (3*grids[0]-2) * (3*grids[0]-2), 1)  
+        self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13 
+        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*11*11  
+        self.fc1 = nn.Linear(9 * (3*grids[0]-4) * (3*grids[0]-4), 1)  
     def forward(self,x):
         x = fc.relu(self.conv1(x))
         x = fc.relu(self.conv2(x))
+        x = fc.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
         return x
@@ -42,15 +45,11 @@ def read_data(f_num,d,degree):
     if degree == 0:
         # 设置图像文件夹和标签文件夹的路径
         # set Image file and label file path
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/labels'
-        # image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/images'
-        # label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/labels'
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/labels'
     else:
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/rotate/{degree}/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/f{f_num}_out/{d}mm/rotate/{degree}/labels'
-        # image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/images'
-        # label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/f{f_num}_out/{d}mm/rotate/{degree}/labels'
+        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/images'
+        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
    # 按照数字排序文件列表
@@ -227,7 +226,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # print(model)
     # 定义损失函数和优化器
     # Defein optimizer and criterion
-    criterion = nn.MSELoss()
+    criterion = nn.L1Loss()
     learning_rate = 0.0001
     optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
     # 记录训练和测试过程中的损失
@@ -274,8 +273,8 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
 
     #记录的是 测试集的结果
     # Store test data result
-    # result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
-    result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_2/result/5mm/tencrosvalidationresult_validate.txt'
+    result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
+   
     with open(result_file_path,"a") as file:
             file.write(str(fold+1))
             file.write("\nMAE: "+str(mae))
@@ -298,7 +297,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
 torch.save({
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
-},  f'/Users/darren/资料/SPIF_DU/Croppings/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}.pth')
+},  f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}_grid{grids[0]}_version{version}.pth')
 
 # validation的结果
 # Result of validation
