@@ -24,12 +24,10 @@ class HeatMapCNN(nn.Module):
         super(HeatMapCNN,self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
         self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13 
-        self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*11*11  
-        self.fc1 = nn.Linear(9 * (3*grids[0]-4) * (3*grids[0]-4), 1)  
+        self.fc1 = nn.Linear(9 * (3*grids[0]-2) * (3*grids[0]-2), 1)  
     def forward(self,x):
         x = fc.relu(self.conv1(x))
         x = fc.relu(self.conv2(x))
-        x = fc.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
         return x
@@ -209,6 +207,13 @@ y = np.array(y)
 # 归一化图像数据
 # Normalise
 X = X / 255.0  # 使用0-255的像素值
+def normalize_mean_std(image):
+    mean = np.mean(image)
+    stddev = np.std(image)
+    normalized_image = (image - mean) / stddev
+    return normalized_image
+
+X = normalize_mean_std(X)
 batch = 64
 
 # 划分数据集为训练集和验证集
@@ -242,6 +247,9 @@ if torch.cuda.is_available():
 
 # train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 # val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
+
+result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
+
 
 kf = KFold(n_splits=10, shuffle=True, random_state=42)
 for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
@@ -299,7 +307,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # print(model)
     # 定义损失函数和优化器
     # Defein optimizer and criterion
-    criterion = nn.L1Loss()
+    criterion = nn.MSELoss()
     learning_rate = 0.0001
     optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
     # 记录训练和测试过程中的损失
@@ -346,14 +354,16 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
 
     #记录的是 测试集的结果
     # Store test data result
-    result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
-   
     with open(result_file_path,"a") as file:
-            file.write(str(fold+1))
-            file.write("\nMAE: "+str(mae))
-            file.write("\nMSE: "+str(mse))
-            file.write("\nRMSE: "+str(rmse))
-            file.write("\nR2: "+str(r2)+"\n")
+        if fold == 0:
+            file.write("Model: "+str(model))
+            file.write("\nLearning rate: " + str(learning_rate))
+            file.write("\nEpoch: " + str(num_epochs))
+        file.write("\nFold: "+str(fold+1))
+        file.write("\nMAE: "+str(mae))
+        file.write("\nMSE: "+str(mse))
+        file.write("\nRMSE: "+str(rmse))
+        file.write("\nR2: "+str(r2)+"\n")
     # plt.figure()
     # plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss')
     # # plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss')
@@ -392,7 +402,12 @@ print("MSE",mse)
 print("RMSE",rmse)
 print("R2",r2)
 
-
+with open(result_file_path,"a") as file:
+    file.write("Valuation Result: ")
+    file.write("\nMAE: "+str(mae))
+    file.write("\nMSE: "+str(mse))
+    file.write("\nRMSE: "+str(rmse))
+    file.write("\nR2: "+str(r2)+"\n")
 
 # # 定义模型和优化器
 # model = MyModel()

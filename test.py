@@ -108,27 +108,27 @@ import numpy as np
 # print(f'R2 Mean: {r2_mean}, Standard Deviation: {r2_std}')
 
 
-import cv2
+# import cv2
 
 
-def compare_images(image1_path, image2_path):
-    # 读取图片
-    image1 = cv2.imread(image1_path)
-    image2 = cv2.imread(image2_path)
+# def compare_images(image1_path, image2_path):
+#     # 读取图片
+#     image1 = cv2.imread(image1_path)
+#     image2 = cv2.imread(image2_path)
 
-    # 检查图片尺寸是否相同
-    if image1.shape == image2.shape:
-        # 比较两张图片的每个像素是否相同
-        difference = cv2.subtract(image1, image2)
-        b, g, r = cv2.split(difference)
-        if cv2.countNonZero(b) == 0 and cv2.countNonZero(g) == 0 and cv2.countNonZero(r) == 0:
-            return True
-    return False
+#     # 检查图片尺寸是否相同
+#     if image1.shape == image2.shape:
+#         # 比较两张图片的每个像素是否相同
+#         difference = cv2.subtract(image1, image2)
+#         b, g, r = cv2.split(difference)
+#         if cv2.countNonZero(b) == 0 and cv2.countNonZero(g) == 0 and cv2.countNonZero(r) == 0:
+#             return True
+#     return False
 
-# 比较两个图片
-image1_path = "/Users/darren/资料/SPIF_DU/Croppings/f1_out/5mm/patched1.jpg"
-image2_path = "/Users/darren/资料/SPIF_DU/Croppings/f2_out/5mm/patched2.jpg"
-if compare_images(image1_path, image2_path):
-    print("图片相同")
-else:
-    print("图片不同")
+# # 比较两个图片
+# image1_path = "/Users/darren/资料/SPIF_DU/Croppings/f1_out/5mm/patched1.jpg"
+# image2_path = "/Users/darren/资料/SPIF_DU/Croppings/f2_out/5mm/patched2.jpg"
+# if compare_images(image1_path, image2_path):
+#     print("图片相同")
+# else:
+#     print("图片不同")
