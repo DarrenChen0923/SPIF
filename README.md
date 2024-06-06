@@ -48,6 +48,11 @@ The path to the data used to generate the Fin heat map
 ```
 
 
+## Model
+The CNN architecture consisted of (i) three 3*3 convolutional layers and (ii) a dense (fully connected) layer with 1 node for predicting springback error. The architecture is illustrated in Figure \ref{fig:cnnArchitecture}. A learning rate of $\alpha = 0.001$, a batch size $= 64$, and an epoch size $e = 1000$ were used. 
+
+![My Image](Croppings/Architecutre.png)
+
 ## Run Code
 
 1. Generate Heatmap
