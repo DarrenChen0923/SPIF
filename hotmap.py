@@ -182,7 +182,6 @@ def generate_data(d,fnum,rotate,version):
             out_data[x][y] = error
 
             line = txtFile.readline()
-
     #rotoate fout
     rotate_data_90 =  list(zip(* out_data[::-1]))
     rotate_data_180 =  list(zip(* rotate_data_90[::-1]))
@@ -196,15 +195,20 @@ def generate_data(d,fnum,rotate,version):
         error = 0 
         for row in range(x_start, x_end + 1):
             for col in range(y_start, y_end + 1):
+                temp = 0
                 if rotate == 0:
-                    total += out_data[row][col]
+                    temp = out_data[row][col]
                 elif rotate == 90:
-                    total += rotate_data_90[row][col]
+                    temp == rotate_data_90[row][col]
                 elif rotate == 180:
-                    total += rotate_data_180[row][col]
+                    temp == rotate_data_180[row][col]
                 elif rotate == 270:
-                    total += rotate_data_270[row][col]
-                count += 1          
+                    temp == rotate_data_270[row][col]
+                if temp == 0:
+                    continue
+                else:
+                    total += temp 
+                    count += 1          
         if count != 0:
             error =  total / count
         return error
@@ -216,8 +220,11 @@ def generate_data(d,fnum,rotate,version):
         error = 0 
         for row in range(x_start, x_end + 1):
             for col in range(y_start, y_end + 1):
-                total += flipped_data[row][col]
-                count+=1
+                if flipped_data[row][col] == 0: 
+                    continue
+                else:
+                    total += flipped_data[row][col]
+                    count+=1
         if count != 0:
             error =  total / count
         return error
