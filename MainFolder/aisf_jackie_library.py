@@ -42,8 +42,8 @@ def generate_gridcordinate(d, x_max, x_min, y_max, y_min):
     """ 
     # mm in this case
     #use gin to generate grid
-    x_axis = np.arange(x_min,x_max-d,3)#sheng cheng deng cha shu lie 
-    y_axis = np.arange(y_min,y_max-d,3)
+    x_axis = np.arange(x_min,x_max-d,d)#sheng cheng deng cha shu lie 
+    y_axis = np.arange(y_min,y_max-d,d)
     X,Y = np.meshgrid(x_axis,y_axis)
 
     # 左下xy，右下xy，左上xy，右上点xy, 中点xy
@@ -199,6 +199,7 @@ def generate_gridized_cloud(finpath,foutpath, gridsize, outputfilepath):
       f_error.write(str(gin_center_xyz[0]) +','+ str(gin_center_xyz[1])+',' + str(gin_center_xyz[2]) +','+ str(solu) + '\n')
       
       idx += 1
+      print("Index:",idx)
 
   print("finish generating gridized cloud file")
 
