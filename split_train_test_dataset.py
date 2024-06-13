@@ -5,7 +5,7 @@ import numpy as np
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [5]
+grids = [15]
 version = 2
 
 # 自定义排序函数
@@ -152,13 +152,13 @@ def save_images_and_labels(images, labels, output_dir, prefix):
     for i, (image_path, label) in enumerate(zip(images, labels)):
         # destination_path = os.path.join(output_dir, f"images/{prefix}_image_{i+1}.png")
         # shutil.copy2(image_path,destination_path)
-        label_path = os.path.join(output_dir, f"labels/{prefix}_label_{i+1}.txt")
+        label_path = os.path.join(output_dir, f"labels/{prefix}_{i+1}.txt")
         with open(label_path, 'w') as label_file:
             label_file.write(str(label))
         try:
             with Image.open(image_path) as img:
                 # 构建目标路径
-                destination_path = os.path.join(output_dir, f"images/{prefix}_image_{i+1}.png")
+                destination_path = os.path.join(output_dir, f"images/{prefix}_{i+1}.jpg")
                 # 保存图像到目标路径
                 # img.save(destination_path)
                 img_without_metadata = img.copy()
