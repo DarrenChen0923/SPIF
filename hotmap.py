@@ -273,7 +273,7 @@ def generate_data(d,fnum,rotate,version):
                 cv2.imwrite(f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/saved_patches/'+'tile'+str(x)+'_'+str(y)+'.jpg', cropping)
                 rotate_name = f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/images/"+str(x1)+"_"+str(y1)+".jpg"
                 rorate_error_name = f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/labels/"+str(x1)+"_"+str(y1)+".txt"
-                cv2.rectangle(img, (x, y), (x1, y1), (0, 255, 0), 1)  
+                # cv2.rectangle(img, (x, y), (x1, y1), (0, 255, 0), 1)  
             # 根据所选择的out文件和不同的grid size计算误差并保存
             # Svae image
             # 旋转后路径
@@ -292,7 +292,7 @@ def generate_data(d,fnum,rotate,version):
                 cv2.imwrite(f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/saved_patches/'+'tile'+str(x)+'_'+str(y)+'.jpg', flip)
                 flip_name = f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/images/"+str(x1)+"_"+str(y1)+".jpg"
                 flip_error_name = f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/labels/"+str(x1)+"_"+str(y1)+".txt"
-                cv2.rectangle(image_flip, (x, y), (x1, y1), (0, 255, 0), 1)  
+                # cv2.rectangle(image_flip, (x, y), (x1, y1), (0, 255, 0), 1)  
             with open(flip_error_name,"w") as file:
                 error = calculate_error_flip(x,x+N,y,y+M)
                 file.write(str(error))
@@ -300,10 +300,10 @@ def generate_data(d,fnum,rotate,version):
         
     print("Finish generating file")
     # cv2.imshow("Patched Image2",img)
-    if rotate == 0:
-        cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/patched{fnum}.jpg",img)
-    else:
-        cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/patched{fnum}.jpg",img)
+    # if rotate == 0:
+    #     cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/patched{fnum}.jpg",img)
+    # else:
+    #     cv2.imwrite(f"/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/patched{fnum}.jpg",img)
     # cv2.waitKey()
     # cv2.destroyAllWindows()
 
