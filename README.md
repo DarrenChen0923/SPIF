@@ -48,6 +48,28 @@ The path to the data used to generate the Fin heat map
 ```
 
 
+All data sets are split into training sets and test sets according to the ratio of 8:2. Use fixed training sets and data sets for training, and you can use these data sets directly if you need to reproduce.
+
+The training dataset path:
+
+```
+.../SPIF_DU/Croppings/version_2/train_dataset
+
+```
+
+<img width="288" alt="image" src="https://github.com/DarrenChen0923/SPIF_DU/assets/52141602/490c7449-5293-4ee2-a30a-5c2d5c01b81f">
+
+The test dataset:
+
+```
+.../SPIF_DU/Croppings/version_2/test_dataset
+
+```
+
+
+<img width="286" alt="image" src="https://github.com/DarrenChen0923/SPIF_DU/assets/52141602/0bb11c3a-0d99-4f3f-adc3-4da38a57ff37">
+
+
 ## Model
 The CNN architecture consisted of (i) three 3*3 convolutional layers and (ii) a dense (fully connected) layer with 1 node for predicting springback error. The architecture is illustrated in Figure \ref{fig:cnnArchitecture}. A learning rate of $\alpha = 0.001$, a batch size $= 64$, and an epoch size $e = 1000$ were used. 
 
