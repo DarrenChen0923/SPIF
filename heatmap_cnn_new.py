@@ -60,7 +60,6 @@ def read_data(f_num,d,degree):
     # Create empty list to store iamges and lables
     X = []  # 用于存储图像数据 store images
     y = []  # 用于存储标签 store lables
-    image_paths = []
 
     # 遍历图像文件列表
     # Iterate Images
@@ -110,7 +109,6 @@ def read_data(f_num,d,degree):
         # img = img.reshape(1,15,15)
         # 将图像数据和标签添加到列表
         # put image and label into list
-        image_paths.append(image_path)
         X.append(img)
         y.append(label)
     return image_paths,X,y
@@ -135,7 +133,6 @@ def read_data_flip(f_num,d,degree):
     # Create empty list to store iamges and lables
     X = []  # 用于存储图像数据 store images
     y = []  # 用于存储标签 store lables
-    image_paths = []
 
     # 遍历图像文件列表
     # Iterate Images
@@ -184,7 +181,6 @@ def read_data_flip(f_num,d,degree):
         img = img.transpose((2, 0, 1))
         # 将图像数据和标签添加到列表
         # put image and label into list
-        image_paths.append(image_path)
         X.append(img)
         y.append(label)
     return image_paths,X,y
@@ -195,16 +191,14 @@ def read_data_flip(f_num,d,degree):
 # X,y = read_data(3,5)
 X = []  # 用于存储图像数据 store images
 y = []  # 用于存储标签 store labels
-image_paths = []
 
 for fum in fums:
     for grid in grids:
         for degree in degrees:
-            image_paths_grid_degree,X_fum_grid_degree,y_fum_grid_degree = read_data(fum,grid,degree)
-            image_paths_grid_degree_flip,X_fum_grid_degree_flip,y_fum_grid_degree_flip = read_data_flip(fum,grid,degree)
+            X_fum_grid_degree,y_fum_grid_degree = read_data(fum,grid,degree)
+            X_fum_grid_degree_flip,y_fum_grid_degree_flip = read_data_flip(fum,grid,degree)
             X= X + X_fum_grid_degree + X_fum_grid_degree_flip
             y= y + y_fum_grid_degree + y_fum_grid_degree_flip
-            image_paths = image_paths + image_paths_grid_degree + image_paths_grid_degree_flip
 
 # 将X和y转化为NumPy数组
 # transfer X and y into numpy array
