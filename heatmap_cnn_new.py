@@ -11,7 +11,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
-from PIL import Image
 from datetime import datetime
 
 degrees = [0,90,180,270]
@@ -72,7 +71,6 @@ def read_data(train_or_test):
         # 打开图像文件并进行预处理
         # open image file and do preprocessing
         with Image.open(image_path) as img:
-                # print(f"Average RGB value of the image f_num={f_num},degree={degree},d={d}: R={avg_r/255}, G={avg_g/255}, B={avg_b/255},z = {label}")
             # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
             # img = img.convert("L")
             img = np.array(img)  # 将图像转化为NumPy数组 transfer image to Numpy array
@@ -83,9 +81,6 @@ def read_data(train_or_test):
         X.append(img)
         y.append(label)
     return X,y
-
-X = []  # 用于存储图像数据 store images
-y = []  # 用于存储标签 store labels
 
 for fum in fums:
     for grid in grids:
@@ -120,6 +115,15 @@ batch = 64
 # # 划分数据集为训练集和验证集
 # # # Divide dataset into train set and validation set
 # # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# with open('train_test_data.pkl', 'rb') as file:
+#     loaded_data = pickle.load(file)
+
+# # 提取各个变量
+# X_train = loaded_data['X_train']
+# X_test = loaded_data['X_test']
+# y_train = loaded_data['y_train']
+# y_test = loaded_data['y_test']
 
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
@@ -181,9 +185,8 @@ for epoch in range(num_epochs):
 #保存模型
 # Save model
 torch.save({
-    'model_state_dict': model.state_dict(),
-    'optimizer_state_dict': optimizer.state_dict(),
-},  f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}_grid{grids[0]}_version{version}.pth')
+    model.state_dict(),
+},  f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/models/model_version{version}_grid{grids[0]}_epo{num_epochs}_batch{batch}_lr{learning_rate}.pth')
 
 # validation的结果
 # Result of validation
@@ -205,7 +208,7 @@ print("RMSE",rmse)
 print("R2",r2)
 
 with open(result_file_path,"a") as file:
-    file.write("Time: " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    file.write("\nTime: " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     file.write("Model: "+str(model))
     file.write("\nLearning rate: " + str(learning_rate))
     file.write("\nEpoch: " + str(num_epochs))
