@@ -666,3 +666,41 @@ RMSE: 0.19815543
 R2: 0.9254297838149141
 
 
+Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000
+Fold: 1
+MAE: 0.14760754
+MSE: 0.040671844
+RMSE: 0.20167261
+R2: 0.9400181145732964
+
+Fold: 2
+MAE: 0.14340214
+MSE: 0.046654068
+RMSE: 0.21599552
+R2: 0.9311956695232327
+
+Fold: 3
+MAE: 0.15140927
+MSE: 0.042768285
+RMSE: 0.20680495
+R2: 0.9369263263626255
+Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000
+Fold: 1
+MAE: 0.19214883
+MSE: 0.11142965
+RMSE: 0.3338108
+R2: 0.8449786976368825

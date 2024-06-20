@@ -13,10 +13,11 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 from sklearn.model_selection import KFold
 from PIL import Image
+import pickle
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [20]
+grids = [15]
 version = 2
 
 class HeatMapCNN(nn.Module):
@@ -222,6 +223,16 @@ batch = 64
 # Divide dataset into train set and validation set
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
 
+# data_to_save = {
+#     'X_train': X_train,
+#     'X_test': X_test,
+#     'y_train': y_train,
+#     'y_test': y_test
+# }
+
+# with open('train_test_data.pkl', 'wb') as file:
+#     pickle.dump(data_to_save, file)
+
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 y_train = y_train.astype('float32')
@@ -332,11 +343,11 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
             # Checkt Gradient
             # for name, parms in model.named_parameters(): 
             #     print('-->name:', name, '-->grad_requirs:',parms.requires_grad, ' -->grad_value:',parms.grad)
-        train_losses.append(loss.item() )
-        for images, labels in val_data_loader_fold:
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-        test_losses.append(loss.item())
+        # train_losses.append(loss.item() )
+        # for images, labels in val_data_loader_fold:
+        #     outputs = model(images)
+        #     loss = criterion(outputs, labels)
+        # test_losses.append(loss.item())
         print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
     # 使用 X_test, y_test 进行最终的测试评估

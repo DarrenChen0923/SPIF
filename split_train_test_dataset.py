@@ -2,10 +2,11 @@ from sklearn.model_selection import train_test_split
 from PIL import Image
 import os
 import numpy as np
+import shutil
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [15]
+grids = [5]
 version = 2
 
 # 自定义排序函数
@@ -143,28 +144,20 @@ for fum in fums:
             y= y + y_fum_grid_degree + y_fum_grid_degree_flip
             image_paths = image_paths + image_paths_grid_degree + image_paths_grid_degree_flip
 
-Image_train, Image_test, y_train, y_test = train_test_split(image_paths,y,test_size=0.2,random_state=42)
+Image_train, Image_test, y_train, y_test = train_test_split(image_paths,y,test_size=0.28,random_state=42)
 
 def save_images_and_labels(images, labels, output_dir, prefix):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    
     for i, (image_path, label) in enumerate(zip(images, labels)):
         # destination_path = os.path.join(output_dir, f"images/{prefix}_image_{i+1}.png")
         # shutil.copy2(image_path,destination_path)
         label_path = os.path.join(output_dir, f"labels/{prefix}_{i+1}.txt")
         with open(label_path, 'w') as label_file:
             label_file.write(str(label))
-        try:
-            with Image.open(image_path) as img:
-                # 构建目标路径
-                destination_path = os.path.join(output_dir, f"images/{prefix}_{i+1}.jpg")
-                # 保存图像到目标路径
-                # img.save(destination_path)
-                img_without_metadata = img.copy()
-                img_without_metadata.save(destination_path)
-        except Exception as e:
-            print(f"Failed to process {image_path}: {e}")
+        destination_path = os.path.join(output_dir, f"images/{prefix}_{i+1}.jpg")
+        shutil.copy(image_path,destination_path)
+    
 
 # 保存训练集图像和标签
 save_images_and_labels(Image_train, y_train, f'/Users/darren/资料/SPIF_DU/Croppings/version_2/train_dataset/{grids[0]}mm/', 'train')

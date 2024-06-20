@@ -10,3 +10,159 @@ MAE: 0.12684171
 MSE: 0.032583803
 RMSE: 0.18050984
 R2: 0.9560841530552678
+Time: 2024-06-13 20:55:32Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.44233426
+MSE: 0.4789922
+RMSE: 0.6920926
+R2: 0.3544231636805327
+
+Time: 2024-06-13 21:02:23Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.43896106
+MSE: 0.43803173
+RMSE: 0.66183966
+R2: 0.4096289623834125
+
+Time: 2024-06-13 21:10:26Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.22931921
+MSE: 0.11682457
+RMSE: 0.3417961
+R2: 0.8425460099594003
+
+Time: 2024-06-13 21:36:00Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.52389073
+MSE: 0.6709564
+RMSE: 0.8191193
+R2: 0.09569743222091764
+
+Time: 2024-06-13 21:42:30Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.4082666
+MSE: 0.45193565
+RMSE: 0.6722616
+R2: 0.39088958670277574
+
+Time: 2024-06-14 04:00:21Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.29763672
+MSE: 0.19865887
+RMSE: 0.44571164
+R2: 0.7322512774425557
+
+Time: 2024-06-14 04:16:34Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.10841782
+MSE: 0.026106538
+RMSE: 0.16157518
+R2: 0.9504204327064869
+
+Time: 2024-06-14 04:39:48Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.21923785
+MSE: 0.092236385
+RMSE: 0.30370444
+R2: 0.8756855063777315
+
+Time: 2024-06-20 05:50:11Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.17886917
+MSE: 0.06211217
+RMSE: 0.24922313
+R2: 0.9062350453910758
+
+Time: 2024-06-20 05:57:23Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.13569932
+MSE: 0.036730606
+RMSE: 0.1916523
+R2: 0.9445512243666268
+
+
+Time: 2024-06-20 06:34:55Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.19295116
+MSE: 0.0656084
+RMSE: 0.25614136
+R2: 0.9009571082318208
+
+Time: 2024-06-20 07:34:20Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=15129, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.14451733
+MSE: 0.043721117
+RMSE: 0.20909595
+R2: 0.9339983061185196

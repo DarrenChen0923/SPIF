@@ -10,3 +10,16 @@ MAE: 0.14461905
 MSE: 0.035053514
 RMSE: 0.18722583
 R2: 0.9278321901934728
+
+Time: 2024-06-20 06:40:03Model: HeatMapCNN(
+  (conv1): Conv2d(3, 9, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv2): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (conv3): Conv2d(9, 9, kernel_size=(3, 3), stride=(1, 1))
+  (fc1): Linear(in_features=28224, out_features=1, bias=True)
+)
+Learning rate: 0.001
+Epoch: 1000Valuation Result: 
+MAE: 0.14679983
+MSE: 0.048160356
+RMSE: 0.21945468
+R2: 0.9141286385168683
