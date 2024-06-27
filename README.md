@@ -134,3 +134,19 @@ The prefix (/Users/darren/资料/) can change your path.
 grids[0] can be {5,10,15,20}
 
 ```
+
+
+## Result
+The training result from the train dataset
+| Grid Size | MAE | MSE | RMSE | R2 |
+| :---         |     :---:      |          ---: |     :---:      |          ---: |
+| 5mm   | 0.49080    | 0.44639   | 0.66812    | 0.70745      |
+| 10mm  | 0.20859    | 0.08115   | 0.28487    | 0.92472      |
+| 15mm  | 0.13565    | 0.03673   | 0.19165    | 0.94455      |
+| 20mm  | 0.14679    | 0.04816   | 0.21945    | 0.91412      |
+
+The test result from the test dataset
+
+<img width="397" alt="image" src="https://github.com/DarrenChen0923/SPIF_DU/assets/52141602/3e1a1d21-274b-4cf0-8889-71f3aa3c5a9a">
+
+
