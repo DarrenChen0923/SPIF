@@ -140,13 +140,16 @@ grids[0] can be {5,10,15,20}
 The training result from the train dataset
 | Grid Size | MAE | MSE | RMSE | R2 |
 | :---         |     :---:      |          ---: |     :---:      |          ---: |
+| 5mm   | 0.3766    | 0.2935   | 0.5417    | 0.7941      |
+| 10mm  | 0.1921    | 0.0873   | 0.2956    | 0.9127      |
+| 15mm  | 0.1445    | 0.0403   | 0.2008    | 0.9405      |
+| 20mm  | 0.1343    | 0.0788   | 0.2072    | 0.9093      |
+
+The test result from the test dataset
+| Grid Size | MAE | MSE | RMSE | R2 |
+| :---         |     :---:      |          ---: |     :---:      |          ---: |
 | 5mm   | 0.4908    | 0.4463   | 0.6681    | 0.7074      |
 | 10mm  | 0.2085    | 0.0811   | 0.2848    | 0.9247      |
 | 15mm  | 0.1356    | 0.0367   | 0.1916    | 0.9445      |
 | 20mm  | 0.1467    | 0.0481   | 0.2194    | 0.9141      |
-
-The test result from the test dataset
-
-<img width="397" alt="image" src="https://github.com/DarrenChen0923/SPIF_DU/assets/52141602/3e1a1d21-274b-4cf0-8889-71f3aa3c5a9a">
-
 
