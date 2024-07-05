@@ -1,4 +1,4 @@
-# import cv2 as cv2
+import cv2 as cv2
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ from PIL import Image
 from numpy import asarray
 np.set_printoptions(threshold=np.inf)
 from utils.cli import get_parser
+import os
 
 # cml arguments
 parser = get_parser()
@@ -209,6 +210,12 @@ def generate_data(d,fnum,rotate,version):
 
             # Svae image
             # path after rorate 
+            if rotate == 0: 
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/labels/")
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/images/")
+            else:
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/labels/")
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/rotate/{rotate}/images/")
             with open(rorate_error_name,"w") as file:
                 error = calculate_error(x,x+N,y,y+M)
                 file.write(str(error))
@@ -224,6 +231,12 @@ def generate_data(d,fnum,rotate,version):
                 flip_name = args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/images/"+str(x1)+"_"+str(y1)+".jpg"
                 flip_error_name = args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/labels/"+str(x1)+"_"+str(y1)+".txt"
                 # cv2.rectangle(image_flip, (x, y), (x1, y1), (0, 255, 0), 1)  
+            if rotate == 0: 
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/labels/")
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/images/")
+            else:
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/labels/")
+                os.mkdir(args.project_root + f"/SPIF_DU/Croppings/version_{version}/f{fnum}_out/{d}mm/flip/rotate/{rotate}/images/")
             with open(flip_error_name,"w") as file:
                 error = calculate_error_flip(x,x+N,y,y+M)
                 file.write(str(error))

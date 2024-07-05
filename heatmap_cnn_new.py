@@ -146,7 +146,10 @@ val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
 result_file_path = args.project_root + f'/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate_new.txt'
 
 
-model = HeatMapCNN().cuda()
+if torch.cuda.is_available():
+    model = HeatMapCNN().cuda()
+else:
+    model = HeatMapCNN()
 criterion = nn.MSELoss()
 learning_rate = 0.001
 optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
