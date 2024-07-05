@@ -6,3 +6,7 @@ numpy
 seaborn
 matplotlib
 opencv-python
+tensorboard
+
+
+

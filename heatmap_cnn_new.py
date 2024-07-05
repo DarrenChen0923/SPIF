@@ -13,6 +13,10 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 from datetime import datetime
 from utils.cli import get_parser
+from torch.utils.tensorboard import SummaryWriter
+from torchvision import datasets, transforms
+
+writer = SummaryWriter('runs/mnist_experiment_1')
 
 # cml arguments
 parser = get_parser()
@@ -158,6 +162,7 @@ for epoch in range(num_epochs):
         loss = criterion(outputs, al_label)
         loss.backward()
         optimizer.step()
+        writer.add_scalar('training loss', loss, epoch)
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
 
@@ -169,7 +174,7 @@ print(f"Model saved in trained_models/heatmap_cnn_{grids[0]}mm.pth!")
 
 
 
-
+writer.close()
 # Validation on training performance
     
 model.eval()
