@@ -46,11 +46,11 @@ def read_data(f_num,d,degree):
     if degree == 0:
         # 设置图像文件夹和标签文件夹的路径
         # set Image file and label file path
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/labels'
+        image_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/images'
+        label_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/labels'
     else:
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/labels'
+        image_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/images'
+        label_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
    # 按照数字排序文件列表
@@ -119,11 +119,11 @@ def read_data_flip(f_num,d,degree):
     if degree == 0:
         # 设置图像文件夹和标签文件夹的路径
         # set Image file and label file path
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/labels'
+        image_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/images'
+        label_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/labels'
     else:
-        image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/rotate/{degree}/images'
-        label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/rotate/{degree}/labels'
+        image_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/rotate/{degree}/images'
+        label_folder = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/f{f_num}_out/{d}mm/flip/rotate/{degree}/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
     
     # 按照数字排序文件列表
@@ -261,7 +261,7 @@ if torch.cuda.is_available():
 # train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 # val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
 
-result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
+result_file_path = f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate.txt'
 
 
 kf = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -316,7 +316,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     # 使用 X_val, y_val 进行模型的验证
     # 创建模型实例
     # Create model
-    model = HeatMapCNN()
+    model = HeatMapCNN().cuda()
     # print(model)
     # 定义损失函数和优化器
     # Defein optimizer and criterion
@@ -356,8 +356,8 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
     model.eval()
     pre = model(X_val_tensor_fold)
     if torch.cuda.is_available():
-        pre = pre.gpu()
-    pre = pre.detach().numpy()
+        pre = pre.cuda()
+    pre = pre.cpu().detach().numpy()
     y_val_tensor_fold = y_val_tensor_fold.cpu()
 
     mae = mean_absolute_error(y_val_tensor_fold,pre)
@@ -393,7 +393,7 @@ for fold, (train_idx, test_idx) in enumerate(kf.split(X_train)):
 torch.save({
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
-},  f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}_grid{grids[0]}_version{version}.pth')
+},  f'/media/yuhangsong/yhs/works/du/SPIF_DU/Croppings/version_{version}/models/model_epo{num_epochs}_batch{batch}_lr{learning_rate}_grid{grids[0]}_version{version}.pth')
 
 # validation的结果
 # Result of validation

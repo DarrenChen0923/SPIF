@@ -12,10 +12,15 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import r2_score
 from datetime import datetime
+from utils.cli import get_parser
+
+# cml arguments
+parser = get_parser()
+args = parser.parse_args()
 
 degrees = [0,90,180,270]
 fums = [1,2,3]
-grids = [15]
+grids = [args.grid]
 version = 2
 
 class HeatMapCNN(nn.Module):
@@ -33,53 +38,45 @@ class HeatMapCNN(nn.Module):
         x = self.fc1(x)
         return x
 
-# 自定义排序函数
+
 def numeric_sort(file_name):
-    # 提取文件名中的数字部分作为排序关键字
     file_name_parts = file_name.split('/')[-1].split('_')
-    file_name_parts[-1] = file_name_parts[-1].split('.')[0]  # 去掉文件后缀
+    file_name_parts[-1] = file_name_parts[-1].split('.')[0]  
     return int(file_name_parts[0]), int(file_name_parts[1])
 
 def read_data(train_or_test):
-        # 设置图像文件夹和标签文件夹的路径
         # set Image file and label file path
-    image_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/{train_or_test}_dataset/{grids[0]}mm/images'
-    label_folder = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/{train_or_test}_dataset/{grids[0]}mm/labels'
+    image_folder = args.project_root + f'/SPIF_DU/Croppings/version_{version}/{train_or_test}_dataset/{grids[0]}mm/images'
+    label_folder = args.project_root + f'/SPIF_DU/Croppings/version_{version}/{train_or_test}_dataset/{grids[0]}mm/labels'
     image_files = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith('.jpg')]
 
-    # 创建空的训练数据列表，用于存储图像和标签
     # Create empty list to store iamges and lables
-    X = []  # 用于存储图像数据 store images
-    y = []  # 用于存储标签 store lables
+    X = []  # store images
+    y = []  # store lables
 
-    # 遍历图像文件列表
     # Iterate Images
     for image_path in image_files:
-        # 获取图像文件名，不包括路径和文件扩展名
+
         # Get images file name
         image_filename = os.path.splitext(os.path.basename(image_path))[0]
 
-        # 构建相应的标签文件路径
         # Build path for label file
         label_path = os.path.join(label_folder, f'{image_filename}.txt')
 
-        # 读取标签文件内容
         # Read label file
         with open(label_path, 'r') as label_file:
-            label = label_file.read().strip()  # 假设标签是一行文本
+            label = label_file.read().strip() 
 
-        # 打开图像文件并进行预处理
-        # open image file and do preprocessing
+        # Image preprocessing
         with Image.open(image_path) as img:
-            # 这里可以添加图像预处理步骤，例如将图像调整为固定大小、归一化等
-            # img = img.convert("L")
-            img = np.array(img)  # 将图像转化为NumPy数组 transfer image to Numpy array
+            img = np.array(img) 
+
         img = img.transpose((2, 0, 1))
-        # img = img.reshape(1,15,15)
-        # 将图像数据和标签添加到列表
+
         # put image and label into list
         X.append(img)
         y.append(label)
+
     return X,y
 
 for fum in fums:
@@ -89,7 +86,7 @@ for fum in fums:
             X_test,y_test = read_data("test")
            
 
-# 将X和y转化为NumPy数组
+
 # transfer X and y into numpy array
 X_train = np.array(X_train)
 y_train = np.array(y_train)
@@ -97,9 +94,9 @@ X_test = np.array(X_test)
 y_test = np.array(y_test)
 
 
-# 归一化图像数据
+
 # Normalise
-X_train = X_train / 255.0  # 使用0-255的像素值
+X_train = X_train / 255.0
 X_test = X_test/255.0
 
 def normalize_mean_std(image):
@@ -112,18 +109,7 @@ X_train = normalize_mean_std(X_train)
 X_test = normalize_mean_std(X_test)
 batch = 64
 
-# # 划分数据集为训练集和验证集
-# # # Divide dataset into train set and validation set
-# # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# with open('train_test_data.pkl', 'rb') as file:
-#     loaded_data = pickle.load(file)
-
-# # 提取各个变量
-# X_train = loaded_data['X_train']
-# X_test = loaded_data['X_test']
-# y_train = loaded_data['y_train']
-# y_test = loaded_data['y_test']
 
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
@@ -153,23 +139,16 @@ val_dataset = Data.TensorDataset(X_test_tensor,y_test_tensor)
 train_data_loader = Data.DataLoader(train_dataset, batch_size=batch, shuffle=True)
 val_data_loader = Data.DataLoader(val_dataset, batch_size=batch, shuffle=False)
 
-result_file_path = f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate_new.txt'
+result_file_path = args.project_root + f'/SPIF_DU/Croppings/version_{version}/result/{grids[0]}mm/tencrosvalidationresult_validate_new.txt'
 
-# 创建模型实例
-# Create model
-model = HeatMapCNN()
-# 定义损失函数和优化器
-# Defein optimizer and criterion
+
+model = HeatMapCNN().cuda()
 criterion = nn.MSELoss()
 learning_rate = 0.001
 optimizer = optim.Adam(model.parameters(), lr = learning_rate) #lr
-# 记录训练和测试过程中的损失
-# store loss during train and test
-# train_losses = []  # 训练损失 train loss
-# test_losses = []  # 测试损失 test loss
 
-# 训练模型
-# train model
+# Training
+
 num_epochs = 1000
 for epoch in range(num_epochs):
     for images, labels in train_data_loader:
@@ -182,50 +161,29 @@ for epoch in range(num_epochs):
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
 
-#保存模型
-# Save model
-torch.save({
-    model.state_dict(),
-},  f'/Users/darren/资料/SPIF_DU/Croppings/version_{version}/models/model_version{version}_grid{grids[0]}_epo{num_epochs}_batch{batch}_lr{learning_rate}.pth')
+# saving the model
+os.makedirs("trained_models",exist_ok=True)
+torch.save(model.state_dict(), f'trained_models/heatmap_cnn_{grids[0]}mm.pth')
 
-# validation的结果
-# Result of validation
+print(f"Model saved in trained_models/heatmap_cnn_{grids[0]}mm.pth!")
+
+
+
+
+# Validation on training performance
+    
 model.eval()
-pre = model(X_test_tensor)
-if torch.cuda.is_available():
-    pre = pre.gpu()
-pre = pre.detach().numpy()
-y_test_tensor = y_test_tensor.cpu()
+pre = model(X_train_tensor)
+pre = pre.cpu().detach().numpy()
+y_train_tensor = y_train_tensor.cpu().detach().numpy()
 
-mae = mean_absolute_error(y_test_tensor,pre)
-mse = mean_squared_error(y_test_tensor,pre)
-rmse = mean_squared_error(y_test_tensor,pre,squared=False)
-r2=r2_score(y_test_tensor,pre)
+mae = mean_absolute_error(y_train_tensor,pre)
+mse = mean_squared_error(y_train_tensor,pre)
+rmse = mean_squared_error(y_train_tensor,pre,squared=False)
+r2=r2_score(y_train_tensor,pre)
 
+print("Training Performance:")
 print("MAE",mae)
 print("MSE",mse)
 print("RMSE",rmse)
 print("R2",r2)
-
-with open(result_file_path,"a") as file:
-    file.write("\nTime: " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    file.write("Model: "+str(model))
-    file.write("\nLearning rate: " + str(learning_rate))
-    file.write("\nEpoch: " + str(num_epochs))
-    file.write("Valuation Result: ")
-    file.write("\nMAE: "+str(mae))
-    file.write("\nMSE: "+str(mse))
-    file.write("\nRMSE: "+str(rmse))
-    file.write("\nR2: "+str(r2)+"\n")
-
-# # 定义模型和优化器
-# model = MyModel()
-# optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-# # 加载模型的状态字典和优化器的状态字典
-# checkpoint = torch.load('trained_model.pth')
-# model.load_state_dict(checkpoint['model_state_dict'])
-# optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-# # 将模型设置为评估模式（不启用 Dropout 等）
-# model.eval()
