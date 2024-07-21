@@ -33,12 +33,14 @@ class HeatMapCNN(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=3,out_channels=9,kernel_size=3,padding=1)# 8*9*15*15 pading =1 为了利用边缘信息
         self.conv2 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13 
         self.conv3 = nn.Conv2d(in_channels=9,out_channels=9,kernel_size=3)# 8*9*13*13 
+        self.dropout = nn.Dropout(p=0.3)
         self.fc1 = nn.Linear(9 * (3*grids[0]-4) * (3*grids[0]-4), 1)  
     def forward(self,x):
         x = fc.relu(self.conv1(x))
         x = fc.relu(self.conv2(x))
         x = fc.relu(self.conv3(x))
         x = x.view(x.shape[0],-1)
+        x = fc.dropout(x)
         x = self.fc1(x)
         return x
 
