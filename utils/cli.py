@@ -8,7 +8,7 @@ def get_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--project_root",
-        default="/media/yuhangsong/yhs/works/du",
+        default="/Users/darren/资料",
         type=str,
         help="The project root to folder SPIF_DU, e.g. /example/works/du"
     )
