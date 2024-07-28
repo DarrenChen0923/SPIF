@@ -107,7 +107,7 @@ We provide the checkopoints for the trained models, feel free to test them!
 
 | Grid Size | Model |
 | :---         |     :---:      | 
-| heatmap_cnn_5mm   | [download](https://drive.google.com/file/d/1mlA13HfP7ABWVT-s7ERG3uUjR05DmzGd-)    | 
+| heatmap_cnn_5mm   | [download](https://drive.google.com/file/d/19OyUcionqjBT-ONE8axVqb8f7QMNU6Y-)    | 
 | heatmap_cnn_10mm  | [download](https://drive.google.com/file/d/1zJPVon80R-4jOiqZORPSxatDcypdaCQz)    |
 | heatmap_cnn_15mm  | [download](https://drive.google.com/file/d/1pouGvgYJ_8VkPIUubOuMizqsEeRe5iWu)   | 
 | heatmap_cnn_20mm  | [download](https://drive.google.com/file/d/1bIp-YXgsotvh2CZtnzaLdM2CImsfw8K6)    |
