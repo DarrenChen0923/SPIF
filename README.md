@@ -1,7 +1,7 @@
 # SPIF (Single Point Increment Forming) Prediction Project
 
 This is a project that uses artificial intelligence technology to predict rebound error for SPIF.
-At present, the prediction of springback error has been realized through GRU and CNN.
+At present, the prediction of springback error has been realized through GRU and ResNet.
 
 The entire project is based on pytorch and scikit-learn libraries.
 
