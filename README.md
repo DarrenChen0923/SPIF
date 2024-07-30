@@ -73,9 +73,9 @@ The grid size should be a numerical value referencing which grid size data you w
 
 
 ## Model
-The CNN architecture consisted of (i) three 3*3 convolutional layers and (ii) a dense (fully connected) layer with 1 node for predicting springback error. The architecture is illustrated in Figure \ref{fig:cnnArchitecture}. A learning rate of $\alpha = 0.001$, a batch size $= 64$, and an epoch size $e = 1000$ were used. 
+The CNN architecture consisted of (i) three 3*3 convolutional layers and (ii) a dense (fully connected) layer with 1 node for predicting springback error. The architecture is illustrated in Figure \ref{fig:cnnArchitecture}. A learning rate of $\alpha = 0.0001$, a batch size $= 64$, and an epoch size $e = 1000$ were used. 
 
-![My Image](Croppings/Architecutre.png)
+![Architecutre_new](https://github.com/user-attachments/assets/95e715de-5826-44d2-9444-335104e5ae3d)
 
 ## Training with Heatmap
 
