@@ -85,7 +85,7 @@ To train the model for
 python heatmap_cnn_new.py --project_root <project_root> --grid <5,10,15,20>
 ```
 
-The model will be saved into `trained_models` folder.
+The model will be saved into the `trained_models` folder.
 
 
 ## Evaluation
@@ -99,11 +99,11 @@ python evalution_heatmap.py \\
 --load_model <model_name>
 ```
 
-The <model_name> should be specified as the name of the one of the model in `trained_models` folder.
+The <model_name> should be specified as the name of one of the models in the `trained_models` folder.
 
 ## Checkopoints
 
-We provide the checkopoints for the trained models, feel free to test them!
+We provide the checkpoints for the trained models, feel free to test them!
 
 | Grid Size | Model |
 | :---         |     :---:      | 
@@ -114,7 +114,7 @@ We provide the checkopoints for the trained models, feel free to test them!
 
 
 ## Result
-The training result from the train dataset
+The training result from the training dataset
 | Grid Size | MAE | MSE | RMSE | R2 |
 | :---         |     :---:      |          ---: |     :---:      |          ---: |
 | 5mm   | 0.2337    | 0.1251   | 0.3531    | 0.9130      |
