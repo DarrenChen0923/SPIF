@@ -9,13 +9,8 @@ The entire project is based on pytorch and scikit-learn libraries.
 
 The code was tested under Ubentu 22.04 LTS, with python 3.6.13.
 
-1. Clone project：
 
-```bash
-git clone git@github.com:DarrenChen0923/SPIF.git
-```
-
-2. Install dependencies:
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
