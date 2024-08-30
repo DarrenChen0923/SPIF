@@ -12,7 +12,7 @@ The code was tested under Ubentu 22.04 LTS, with python 3.6.13.
 1. Clone project：
 
 ```bash
-git clone git@github.com:DarrenChen0923/SPIF_DU.git
+git clone git@github.com:DarrenChen0923/SPIF.git
 ```
 
 2. Install dependencies:
