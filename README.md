@@ -46,7 +46,7 @@ Alternatively, if you want to generate the heatmap by yourself, you need to foll
 1. Download the [original data files](https://drive.google.com/file/d/1XFJDcRiFojEpkhVEIZNHA1iPWChLrvum) and put them in the project root directory. An example directory should look like the following:
 
 ```
-\SPIF_DU
+\SPIF
     \Croppings
     \MainFolder
     \utils
@@ -60,7 +60,7 @@ Alternatively, if you want to generate the heatmap by yourself, you need to foll
 python hotmap.py --project_root <project_root>
 ```
 
-The <project_root> should be referenced as the path to the project folder `SPIF_DU`, e.g. if your project is at `/example/SPIF_DU`, pass `/example` as your argument.
+The <project_root> should be referenced as the path to the project folder `SPIF`, e.g. if your project is at `/example/SPIF`, pass `/example` as your argument.
 
 3. Split the dataset for a certain grid size:
 
