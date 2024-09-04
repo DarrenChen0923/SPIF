@@ -38,7 +38,7 @@ These would be enough for reproducing the result.
 
 Alternatively, if you want to generate the heatmap by yourself, you need to following the instruction provided below:
 
-1. Download the [original data files](https://drive.google.com/file/d/1XFJDcRiFojEpkhVEIZNHA1iPWChLrvum) and put them in the project root directory. An example directory should look like the following:
+1. Download the [original data files](https://drive.google.com/drive/folders/1PNUKEgLeCE8S072n6TuuB4psOiJsjHgm) and put them in the project root directory. An example directory should look like the following:
 
 ```
 \SPIF
